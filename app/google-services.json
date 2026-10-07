@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "132300171193",
+    "project_id": "lottery-app-994f3",
+    "storage_bucket": "lottery-app-994f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132300171193:android:fea4d33aeb582a664ff868",
+        "android_client_info": {
+          "package_name": "com.example.loterryapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "132300171193-9vub1n0gr956rjbp8d87695a4nc5i0ub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.loterryapp",
+            "certificate_hash": "795ebdf493584d2aa81ac7be73d6a3dd917cc7a8"
+          }
+        },
+        {
+          "client_id": "132300171193-2koc23n3t2rplc11m2dmd9ncvr1nh24v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUHWetrdFfNdkxxJGgnOgYxXayCeD4aWM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "132300171193-2koc23n3t2rplc11m2dmd9ncvr1nh24v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

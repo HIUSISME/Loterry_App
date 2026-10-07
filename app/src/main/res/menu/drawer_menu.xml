@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_ticket"
+        android:title="Trang Chủ" />
+
+    <item
+        android:id="@+id/nav_ai_assistant"
+        android:icon="@drawable/ic_star_filled"
+        android:title="🤖 Trợ Lý AI Thông Minh" />
+
+    <item android:title="Xổ Số Kiến Thiết">
+        <menu>
+            <item
+                android:id="@+id/nav_mien_bac"
+                android:icon="@drawable/ic_map_pin"
+                android:title="Xổ Số Miền Bắc" />
+            <item
+                android:id="@+id/nav_mien_trung"
+                android:icon="@drawable/ic_map_pin"
+                android:title="Xổ Số Miền Trung" />
+            <item
+                android:id="@+id/nav_mien_nam"
+                android:icon="@drawable/ic_map_pin"
+                android:title="Xổ Số Miền Nam" />
+            <item
+                android:id="@+id/nav_thong_ke"
+                android:icon="@drawable/ic_bar_chart"
+                android:title="Thống Kê KQXS" />
+        </menu>
+    </item>
+
+    <item android:title="Xổ Số Điện Toán">
+        <menu>
+            <item
+                android:id="@+id/nav_lotto"
+                android:icon="@drawable/ic_star_filled"
+                android:title="Xổ Số Lotto 5/35" />
+            <item
+                android:id="@+id/nav_mega"
+                android:icon="@drawable/ic_star_filled"
+                android:title="Xổ Số Mega 6/45" />
+            <item
+                android:id="@+id/nav_power"
+                android:icon="@drawable/ic_star_filled"
+                android:title="Xổ Số Power 6/55" />
+            <item
+                android:id="@+id/nav_max3d_pro"
+                android:icon="@drawable/ic_dice"
+                android:title="Xổ Số Max3D PRO" />
+            <item
+                android:id="@+id/nav_keno"
+                android:icon="@drawable/ic_ticket"
+                android:title="Xổ Số KENO" />
+            <item
+                android:id="@+id/nav_xsdt"
+                android:icon="@drawable/ic_ticket"
+                android:title="Xổ Số Điện Toán (XSĐT)" />
+            <item
+                android:id="@+id/nav_max3d"
+                android:icon="@drawable/ic_dice"
+                android:title="Xổ Số Max3D" />
+        </menu>
+    </item>
+
+</menu>
