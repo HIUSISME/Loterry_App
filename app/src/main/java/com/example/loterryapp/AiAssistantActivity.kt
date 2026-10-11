@@ -1,7 +1,7 @@
 package com.example.loterryapp
 
-import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.loterryapp.databinding.ActivityAiAssistantBinding
 import com.example.loterryapp.network.AppConfig
-import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,6 +26,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class AiAssistantActivity : AppCompatActivity() {
 
@@ -37,15 +38,19 @@ class AiAssistantActivity : AppCompatActivity() {
     private val prefs by lazy { getSharedPreferences("VLotteryAiPrefs", MODE_PRIVATE) }
     private var geminiApiKey: String = ""
 
+    // Gemini có thể mất vài chục giây để trả lời, nên tăng timeout so với mặc định 10s
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .build()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAiAssistantBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        geminiApiKey = prefs.getString("gemini_api_key", AppConfig.GEMINI_API_KEY) ?: AppConfig.GEMINI_API_KEY
-        if (geminiApiKey.isEmpty()) {
-            geminiApiKey = AppConfig.GEMINI_API_KEY
-        }
+        // Key người dùng tự nhập (nếu có) được ưu tiên hơn key trong local.properties
+        geminiApiKey = prefs.getString("gemini_api_key", null).orEmpty().ifEmpty { AppConfig.GEMINI_API_KEY }
 
         setupChat()
         setupListeners()
@@ -110,14 +115,14 @@ class AiAssistantActivity : AppCompatActivity() {
 
     private fun showApiKeyDialog() {
         val input = EditText(this).apply {
-            hint = "Nhập Gemini API Key hoặc Token (AIzaSy... / AQ...)"
+            hint = "Nhập Gemini API Key (AIza...)"
             setText(geminiApiKey)
             setPadding(48, 32, 48, 32)
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Cấu hình Gemini Key / Token")
-            .setMessage("Nhập mã API Key hoặc Token mới của bạn:")
+            .setTitle("Cấu hình Gemini API Key")
+            .setMessage("Tạo key tại aistudio.google.com rồi dán vào đây:")
             .setView(input)
             .setPositiveButton("Lưu") { _, _ ->
                 val key = input.text.toString().trim()
@@ -137,113 +142,85 @@ class AiAssistantActivity : AppCompatActivity() {
         addMessage(ChatMessage(userText, true))
         binding.etMessage.setText("")
 
-        val loadingIndex = chatMessages.size
-        addMessage(ChatMessage("Trợ lý AI đang phân tích dữ liệu...", false))
+        if (geminiApiKey.isEmpty()) {
+            addMessage(ChatMessage("⚠️ Chưa cấu hình Gemini API Key. Bấm biểu tượng chìa khoá ở góc trên để nhập key.", false))
+            return
+        }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val keyToUse = if (geminiApiKey.isNotEmpty()) geminiApiKey else AppConfig.GEMINI_API_KEY
-                val prompt = "Bạn là trợ lý AI chuyên gia phân tích xổ số và thống kê kết quả VLottery. Hãy trả lời câu hỏi sau bằng tiếng Việt một cách thông minh, súc tích và thân thiện: $userText"
+        // Giữ tham chiếu (không dùng index) vì người dùng có thể gửi tiếp tin nhắn khi AI chưa trả lời xong
+        val loadingMessage = ChatMessage("Trợ lý AI đang phân tích dữ liệu...", false)
+        addMessage(loadingMessage)
 
-                val aiReply = if (keyToUse.startsWith("AIzaSy")) {
-                    val generativeModel = GenerativeModel(
-                        modelName = "gemini-1.5-flash",
-                        apiKey = keyToUse
-                    )
-                    val response = generativeModel.generateContent(prompt)
-                    response.text ?: generateSmartLotteryResponse(userText)
-                } else {
-                    // Handle AQ. Bearer tokens via Gemini REST API
-                    callGeminiWithBearerToken(keyToUse, prompt)
-                }
-
-                withContext(Dispatchers.Main) {
-                    if (chatMessages.size > loadingIndex) {
-                        chatMessages.removeAt(loadingIndex)
-                        chatAdapter.notifyItemRemoved(loadingIndex)
-                    }
-                    addMessage(ChatMessage(aiReply, false))
-                }
+        lifecycleScope.launch {
+            val aiReply = try {
+                withContext(Dispatchers.IO) { callGemini(geminiApiKey, userText) }
+            } catch (e: GeminiException) {
+                Log.e("AiAssistantActivity", "Gemini error", e)
+                "⚠️ ${e.message}"
+            } catch (e: IOException) {
+                Log.e("AiAssistantActivity", "Network error", e)
+                "⚠️ Lỗi mạng, không kết nối được tới Trợ lý AI. Vui lòng thử lại."
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    if (chatMessages.size > loadingIndex) {
-                        chatMessages.removeAt(loadingIndex)
-                        chatAdapter.notifyItemRemoved(loadingIndex)
-                    }
-                    val smartReply = generateSmartLotteryResponse(userText)
-                    addMessage(ChatMessage(smartReply, false))
-                }
+                Log.e("AiAssistantActivity", "Unexpected error", e)
+                "⚠️ Trợ lý AI gặp lỗi: ${e.localizedMessage ?: "không rõ nguyên nhân"}"
             }
+
+            val loadingIndex = chatMessages.indexOfFirst { it === loadingMessage }
+            if (loadingIndex >= 0) {
+                chatMessages.removeAt(loadingIndex)
+                chatAdapter.notifyItemRemoved(loadingIndex)
+            }
+            addMessage(ChatMessage(aiReply, false))
         }
     }
 
-    private fun callGeminiWithBearerToken(token: String, promptText: String): String {
-        val client = OkHttpClient()
+    private fun callGemini(apiKey: String, userText: String): String {
         val jsonBody = JSONObject().apply {
-            put("contents", JSONArray().apply {
-                put(JSONObject().apply {
-                    put("parts", JSONArray().apply {
-                        put(JSONObject().apply {
-                            put("text", promptText)
-                        })
-                    })
-                })
-            })
+            put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", SYSTEM_PROMPT))))
+            put("contents", JSONArray().put(
+                JSONObject()
+                    .put("role", "user")
+                    .put("parts", JSONArray().put(JSONObject().put("text", userText)))
+            ))
         }
 
-        val body = jsonBody.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent")
-            .header("Authorization", "Bearer $token")
-            .header("Content-Type", "application/json")
-            .post(body)
+            .url("https://generativelanguage.googleapis.com/v1beta/models/${AppConfig.GEMINI_MODEL}:generateContent")
+            .header("x-goog-api-key", apiKey)
+            .post(jsonBody.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
             .build()
 
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw Exception("HTTP Error: ${response.code}")
-                }
-                val responseString = response.body?.string() ?: throw Exception("Empty response")
-                val jsonObj = JSONObject(responseString)
-                val candidates = jsonObj.getJSONArray("candidates")
-                if (candidates.length() > 0) {
-                    val content = candidates.getJSONObject(0).getJSONObject("content")
-                    val parts = content.getJSONArray("parts")
-                    if (parts.length() > 0) {
-                        return parts.getJSONObject(0).getString("text")
+        httpClient.newCall(request).execute().use { response ->
+            val responseString = response.body?.string().orEmpty()
+            if (!response.isSuccessful) {
+                Log.e("AiAssistantActivity", "HTTP ${response.code}: $responseString")
+                throw GeminiException(
+                    when (response.code) {
+                        400, 401, 403 -> "Gemini API Key không hợp lệ hoặc đã bị thu hồi. Bấm biểu tượng chìa khoá để nhập key mới."
+                        404 -> "Model \"${AppConfig.GEMINI_MODEL}\" không tồn tại hoặc đã ngừng hoạt động. Hãy đổi GEMINI_MODEL trong local.properties."
+                        429 -> "Đã vượt giới hạn sử dụng Gemini. Vui lòng thử lại sau ít phút."
+                        else -> "Máy chủ Gemini trả về lỗi ${response.code}. Vui lòng thử lại sau."
                     }
-                }
-                return generateSmartLotteryResponse(promptText)
+                )
             }
-    }
 
-    private fun generateSmartLotteryResponse(query: String): String {
-        val q = query.lowercase()
-        return when {
-            q.contains("giải đặc biệt") || q.contains("gdb") || q.contains("đặc biệt") -> {
-                "🎯 Về câu hỏi của bạn về **Giải Đặc Biệt**:\n\nKết quả quay thưởng Giải Đặc Biệt mới nhất của các đài (Miền Bắc, Miền Trung, Miền Nam) được cập nhật trực tiếp theo thời gian thực hàng ngày.\n\n👉 Bạn hãy bấm vào mục **Xổ Số Miền Bắc**, **Miền Trung** hoặc **Miền Nam** ở trang chủ để xem chi tiết bảng kết quả đầy đủ nhất nhé!"
+            val candidates = JSONObject(responseString).optJSONArray("candidates")
+            val parts = candidates?.optJSONObject(0)?.optJSONObject("content")?.optJSONArray("parts")
+            val text = buildString {
+                for (i in 0 until (parts?.length() ?: 0)) {
+                    append(parts!!.optJSONObject(i)?.optString("text").orEmpty())
+                }
+            }.trim()
+
+            if (text.isEmpty()) {
+                // Không có nội dung: thường do câu hỏi bị bộ lọc an toàn của Gemini chặn
+                throw GeminiException("Trợ lý AI không thể trả lời câu hỏi này. Bạn thử hỏi theo cách khác nhé.")
             }
-            q.contains("dự đoán") || q.contains("may mắn") || q.contains("số") || q.contains("hôm nay đánh số gì") -> {
-                val lucky1 = (0..99).random().toString().padStart(2, '0')
-                val lucky2 = (0..99).random().toString().padStart(2, '0')
-                val lucky3 = (0..99).random().toString().padStart(2, '0')
-                "🔮 **Phân tích dự đoán AI VLottery hôm nay**:\n\n• Cặp số lô tô tiềm năng nhất: **$lucky1** - **$lucky2**\n• Lô bạch thủ đầu đuôi sáng giá: **$lucky3**\n\n*Chúc bạn gặp nhiều may mắn và phát tài!* 🍀"
-            }
-            q.contains("nóng") || q.contains("hay về") || q.contains("thống kê") || q.contains("lô gan") -> {
-                "📊 **Thống kê chuyên sâu từ hệ thống**:\n\n• Các bộ số có tần suất xuất hiện cao nhất tuần qua: **48**, **46**, **93**.\n• Bạn có thể xem chi tiết danh sách Lô Gan và Số Nóng đầy đủ tại mục **Thống Kê KQXS** ngoài trang chủ."
-            }
-            q.contains("vietlott") || q.contains("mega") || q.contains("power") || q.contains("keno") -> {
-                val p1 = (1..45).shuffled().take(6).sorted().joinToString(" - ") { it.toString().padStart(2, '0') }
-                val p2 = (1..55).shuffled().take(6).sorted().joinToString(" - ") { it.toString().padStart(2, '0') }
-                "🍀 **Gợi ý bộ số Vietlott thông minh**:\n\n• Mega 6/45: **$p1**\n• Power 6/55: **$p2**\n\n*Chúc bạn sớm rinh giải Jackpot khủng!* 💰"
-            }
-            else -> {
-                val lucky1 = (0..99).random().toString().padStart(2, '0')
-                val lucky2 = (0..99).random().toString().padStart(2, '0')
-                "🤖 **Trợ lý VLottery AI**:\n\nTôi đã ghi nhận câu hỏi của bạn: \"$query\". \n\nDựa trên dữ liệu thống kê xổ số hiện tại, gợi ý bộ số may mắn cho bạn là: **$lucky1** và **$lucky2**. Bạn có thể tra cứu thêm kết quả trực tiếp tại trang chủ ứng dụng!"
-            }
+            return text
         }
     }
+
+    private class GeminiException(message: String) : Exception(message)
 
     data class ChatMessage(
         val text: String,
@@ -277,5 +254,12 @@ class AiAssistantActivity : AppCompatActivity() {
         }
 
         override fun getItemCount() = messages.size
+    }
+
+    companion object {
+        private const val SYSTEM_PROMPT =
+            "Bạn là trợ lý AI chuyên gia phân tích xổ số và thống kê kết quả VLottery. " +
+            "Hãy trả lời bằng tiếng Việt một cách thông minh, súc tích và thân thiện. " +
+            "Xổ số là ngẫu nhiên: khi gợi ý số, hãy nói rõ đó chỉ là gợi ý tham khảo, không đảm bảo trúng thưởng."
     }
 }

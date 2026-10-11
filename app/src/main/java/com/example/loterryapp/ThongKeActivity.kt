@@ -17,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.loterryapp.databinding.ActivityThongKeBinding
 import com.example.loterryapp.network.ApiClient
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class ThongKeActivity : AppCompatActivity() {
@@ -24,6 +26,7 @@ class ThongKeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityThongKeBinding
     private var currentTab: String = "HOT" // "HOT" or "GAP"
     private var currentRegion: String = "MB" // "MB", "MT", or "MN"
+    private var loadJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -137,7 +140,9 @@ class ThongKeActivity : AppCompatActivity() {
         binding.gridTopNumbers.removeAllViews()
         binding.tableStats.removeAllViews()
 
-        lifecycleScope.launch {
+        // Huỷ request cũ để dữ liệu của miền/tab trước không ghi đè lựa chọn hiện tại
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             try {
                 Log.d("ThongKeActivity", "Calling API for region: $currentRegion, tab: $currentTab")
                 val response = if (currentTab == "HOT") {
@@ -200,6 +205,8 @@ class ThongKeActivity : AppCompatActivity() {
                     binding.tvEmptyState.visibility = View.VISIBLE
                     binding.tvEmptyState.text = "Lỗi kết nối API (${response.code()})"
                 }
+            } catch (e: CancellationException) {
+                throw e // Request bị huỷ do người dùng đổi miền/tab: không hiển thị lỗi
             } catch (e: Exception) {
                 Log.e("ThongKeActivity", "Error loading stats", e)
                 binding.progressBar.visibility = View.GONE

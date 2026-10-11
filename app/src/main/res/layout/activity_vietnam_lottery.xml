@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/gray_light"
     android:orientation="vertical"
-    tools:context=".MienBacActivity">
+    tools:context=".VietnamLotteryActivity">
 
     <!-- Header Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -39,10 +39,11 @@
                     app:tint="@color/white" />
 
                 <TextView
+                    android:id="@+id/tvToolbarTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="Xổ Số Miền Bắc"
+                    android:text="Xổ Số Miền Nam"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -120,7 +121,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:padding="8dp"
-                android:text="Đang tải..."
+                android:text="20-09-2026"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -272,7 +273,7 @@
                     android:layout_height="wrap_content"
                     android:background="#E2E8F0"
                     android:padding="1dp"
-                    android:stretchColumns="1">
+                    android:stretchColumns="*">
                 </TableLayout>
             </com.google.android.material.card.MaterialCardView>
 

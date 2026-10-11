@@ -1,5 +1,6 @@
 package com.example.loterryapp.network
 
+import com.example.loterryapp.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,8 +19,10 @@ object ApiClient {
         chain.proceed(request)
     }
 
+    // Chỉ log khi build debug, và luôn che giá trị API key trong log
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        redactHeader("X-API-Key")
     }
 
     private val okHttpClient = OkHttpClient.Builder()

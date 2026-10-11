@@ -84,19 +84,8 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val user = task.result?.user
-                    if (user != null) {
-                        // Check if user exists in Firestore, if not save as customer
-                        authManager.fetchUserRole { role ->
-                            if (role == null) {
-                                authManager.saveUserRole(user.uid, user.email ?: "", "customer") {
-                                    navigateToMain()
-                                }
-                            } else {
-                                navigateToMain()
-                            }
-                        }
-                    }
+                    // fetchUserRole tự tạo hồ sơ customer trong Firestore nếu user chưa có
+                    fetchRoleAndNavigate()
                 } else {
                     Toast.makeText(this, "Firebase auth with Google failed", Toast.LENGTH_SHORT).show()
                 }

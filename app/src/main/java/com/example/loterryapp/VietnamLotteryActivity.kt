@@ -13,10 +13,12 @@ import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.loterryapp.databinding.ActivityMienNamBinding
+import com.example.loterryapp.databinding.ActivityVietnamLotteryBinding
 import com.example.loterryapp.network.ApiClient
 import com.example.loterryapp.network.models.ProvinceDraw
 import com.google.gson.Gson
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -24,7 +26,7 @@ import java.util.Locale
 
 class VietnamLotteryActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMienNamBinding
+    private lateinit var binding: ActivityVietnamLotteryBinding
     private val calendar = Calendar.getInstance()
     private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val displayDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
@@ -34,10 +36,11 @@ class VietnamLotteryActivity : AppCompatActivity() {
     private var currentFilter: String = "ALL"
     private var region: String = "MN" // Default
     private var regionTitle: String = "Xổ Số Miền Nam"
+    private var loadJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMienNamBinding.inflate(layoutInflater)
+        binding = ActivityVietnamLotteryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         region = intent.getStringExtra("REGION") ?: "MN"
@@ -121,7 +124,9 @@ class VietnamLotteryActivity : AppCompatActivity() {
         binding.tvEmptyState.visibility = View.GONE
         binding.tableLayout.removeAllViews()
 
-        lifecycleScope.launch {
+        // Huỷ request cũ để kết quả của ngày trước không ghi đè ngày vừa chọn
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             try {
                 Log.d("VietnamLottery", "Fetching data for region: $region, date: $dateQuery")
                 val response = ApiClient.xosoService.getVietnamDraws(
@@ -193,6 +198,8 @@ class VietnamLotteryActivity : AppCompatActivity() {
                         text = "Lỗi kết nối API: ${response.code()}"
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e // Request bị huỷ do người dùng đổi ngày: không hiển thị lỗi
             } catch (e: Exception) {
                 Log.e("VietnamLottery", "Error: ", e)
                 binding.progressBar.visibility = View.GONE

@@ -13,9 +13,6 @@ class AuthManager {
     var userRole: String? = null
         private set
 
-    // Danh sách email admin mặc định (không thể tạo qua Register)
-    private val ADMIN_EMAILS = listOf("admin@lottery.com", "quanly@lottery.com")
-
     fun isLoggedIn(): Boolean {
         return auth.currentUser != null
     }
@@ -33,16 +30,13 @@ class AuthManager {
         return auth.currentUser?.uid
     }
 
+    /**
+     * Lấy role từ Firestore (users/{uid}.role). Đây là nguồn duy nhất xác định quyền admin;
+     * role admin chỉ được cấp thủ công trên Firebase Console và được bảo vệ bởi firestore.rules.
+     */
     fun fetchUserRole(onResult: (String?) -> Unit) {
         val email = getCurrentUserEmail()
         val uid = getCurrentUserUid()
-
-        // Ưu tiên kiểm tra email admin mặc định
-        if (email != null && ADMIN_EMAILS.contains(email)) {
-            userRole = "admin"
-            onResult("admin")
-            return
-        }
 
         if (uid == null) {
             onResult(null)
@@ -51,19 +45,25 @@ class AuthManager {
 
         db.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
-                val role = document.getString("role")
-                userRole = role ?: "customer" // Mặc định là customer nếu không có trong DB
-                onResult(userRole)
+                if (document.exists()) {
+                    userRole = document.getString("role") ?: "customer" // Mặc định là customer nếu thiếu field role
+                    onResult(userRole)
+                } else {
+                    // Lần đầu đăng nhập (VD: qua Google) chưa có hồ sơ trong DB: tạo mới với role customer
+                    saveUserRole(uid, email ?: "") { success ->
+                        onResult(if (success) userRole else null)
+                    }
+                }
             }
             .addOnFailureListener {
                 onResult(null)
             }
     }
 
-    fun saveUserRole(uid: String, email: String, role: String, onComplete: (Boolean) -> Unit) {
-        // Bảo vệ: Nếu cố tình lưu role admin từ client, chúng ta sẽ từ chối hoặc ép về customer
-        val finalRole = if (ADMIN_EMAILS.contains(email)) "admin" else "customer"
-        
+    /** Tạo hồ sơ cho user mới. App chỉ được tạo role customer (firestore.rules cũng bắt buộc điều này) */
+    fun saveUserRole(uid: String, email: String, onComplete: (Boolean) -> Unit) {
+        val finalRole = "customer"
+
         val user = hashMapOf(
             "email" to email,
             "role" to finalRole

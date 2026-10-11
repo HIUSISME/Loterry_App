@@ -52,12 +52,14 @@ class RegisterActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         val user = task.result?.user
                         if (user != null) {
-                            // Chặn việc đăng ký bằng email admin nếu muốn (Tùy chọn)
-                            // Ở đây chúng ta vẫn cho đăng ký nhưng ép role là "customer"
-                            authManager.saveUserRole(user.uid, email, "customer") { success ->
+                            // User mới luôn là customer; quyền admin chỉ cấp trên Firebase Console
+                            authManager.saveUserRole(user.uid, email) { success ->
                                 if (success) {
                                     Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
-                                    startActivity(Intent(this, MainActivity::class.java))
+                                    // Xoá LoginActivity khỏi back stack để nút Back không quay lại màn đăng nhập
+                                    val intent = Intent(this, MainActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    startActivity(intent)
                                     finish()
                                 } else {
                                     Toast.makeText(this, "Không lưu được thông tin người dùng", Toast.LENGTH_SHORT).show()

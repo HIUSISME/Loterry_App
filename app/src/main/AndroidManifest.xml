@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -30,9 +31,6 @@
         <activity android:name=".VietnamLotteryActivity" />
         <activity android:name=".VietlottActivity" />
         <activity android:name=".ThongKeActivity" />
-        <activity android:name=".MienBacActivity" />
-        <activity android:name=".MienNamActivity" />
-        <activity android:name=".MienTrungActivity" />
         <activity android:name=".DienToanActivity" />
         <activity android:name=".AiAssistantActivity" />
     </application>
