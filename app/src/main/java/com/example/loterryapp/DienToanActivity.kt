@@ -7,12 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.loterryapp.data.DrawRepository
 import com.example.loterryapp.databinding.ActivityDienToanBinding
-import com.example.loterryapp.network.ApiClient
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CancellationException
@@ -30,6 +31,7 @@ class DienToanActivity : AppCompatActivity() {
     private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val displayDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     private var loadJob: Job? = null
+    private val repository by lazy { DrawRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,28 +92,17 @@ class DienToanActivity : AppCompatActivity() {
         // Huỷ request cũ để kết quả của ngày trước không ghi đè ngày vừa chọn
         loadJob?.cancel()
         loadJob = lifecycleScope.launch {
+            // 1. Hiện ngay kết quả đã lưu trên máy (nếu có), không cần chờ mạng
+            val showedSaved = showGames(repository.getSavedVietnamDraws(REGION, dateQuery))
+            // Đã có dữ liệu để xem thì ẩn vòng xoay tải, tránh đẩy nội dung xuống rồi giật lên khi API trả về
+            if (showedSaved) binding.progressBar.visibility = View.GONE
+
+            // 2. Gọi API để lấy kết quả mới; repository tự lưu những kỳ mới / thay đổi vào database
             try {
-                val response = ApiClient.xosoService.getDienToanDraws(date = dateQuery, limit = 10)
+                val fresh = repository.fetchVietnamDraws(region = REGION, date = dateQuery, limit = 10)
                 binding.progressBar.visibility = View.GONE
 
-                if (!response.isSuccessful) {
-                    showEmptyState("Lỗi kết nối API (${response.code()})")
-                    return@launch
-                }
-
-                val draws = parseDraws(response.body())
-                // API có thể trả về nhiều ngày: chỉ hiển thị kỳ quay mới nhất (phần tử đầu tiên)
-                val latestDate = draws.firstOrNull()?.first
-                val latestGames = draws.filter { it.first == latestDate }.map { it.second }
-
-                if (latestDate != null) {
-                    syncCalendarWithApiDate(latestDate)
-                }
-
-                if (latestGames.isNotEmpty()) {
-                    val dateLabel = buildDateLabel(latestDate)
-                    binding.rvDienToan.adapter = DienToanAdapter(latestGames.map { it.copy(date = dateLabel) })
-                } else {
+                if (!showGames(fresh) && !showedSaved) {
                     showEmptyState("Chưa có kết quả ngày ${displayDateFormat.format(calendar.time)}")
                 }
             } catch (e: CancellationException) {
@@ -119,9 +110,32 @@ class DienToanActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("DienToanActivity", "Error loading draws", e)
                 binding.progressBar.visibility = View.GONE
-                showEmptyState("Lỗi mạng hoặc không thể tải dữ liệu: ${e.localizedMessage ?: "Vui lòng thử lại"}")
+                if (showedSaved) {
+                    Toast.makeText(this@DienToanActivity, "Không cập nhật được, đang hiện kết quả đã lưu", Toast.LENGTH_SHORT).show()
+                } else if (e is DrawRepository.ApiException) {
+                    showEmptyState(e.message.orEmpty())
+                } else {
+                    showEmptyState("Lỗi mạng hoặc không thể tải dữ liệu: ${e.localizedMessage ?: "Vui lòng thử lại"}")
+                }
             }
         }
+    }
+
+    /** Hiện các trò của ngày mới nhất trong danh sách. Trả về false nếu không có gì để hiện */
+    private fun showGames(items: List<JsonObject>): Boolean {
+        val draws = parseDraws(items)
+        // API có thể trả về nhiều ngày: chỉ hiển thị kỳ quay mới nhất (phần tử đầu tiên)
+        val latestDate = draws.firstOrNull()?.first
+        val latestGames = draws.filter { it.first == latestDate }.map { it.second }
+        if (latestGames.isEmpty()) return false
+
+        if (latestDate != null) {
+            syncCalendarWithApiDate(latestDate)
+        }
+        binding.tvEmptyState.visibility = View.GONE
+        val dateLabel = buildDateLabel(latestDate)
+        binding.rvDienToan.adapter = DienToanAdapter(latestGames.map { it.copy(date = dateLabel) })
+        return true
     }
 
     private fun showEmptyState(message: String) {
@@ -131,45 +145,25 @@ class DienToanActivity : AppCompatActivity() {
     }
 
     /**
-     * Đọc kết quả từ response, chấp nhận các dạng:
-     * - { data: [ { type: "DT123", date: "...", results: [...] }, ... ] }
-     * - { data: { date: "...", dt123: [...], dt6x36: [...], tt4: [...] } }
+     * Đọc các kỳ quay dạng:
+     * { date: "2026-10-14T00:00:00.000Z", province: { code: "DT123" }, results: [...] }
      * Trả về danh sách (ngày quay gốc từ API, trò chơi)
      */
-    private fun parseDraws(root: JsonElement?): List<Pair<String?, DienToanGame>> {
-        if (root == null || root.isJsonNull) return emptyList()
-        val data = if (root.isJsonObject && root.asJsonObject.has("data")) root.asJsonObject.get("data") else root
-
-        val items = when {
-            data.isJsonArray -> data.asJsonArray.filter { it.isJsonObject }.map { it.asJsonObject }
-            data.isJsonObject -> listOf(data.asJsonObject)
-            else -> emptyList()
-        }
-
-        val result = mutableListOf<Pair<String?, DienToanGame>>()
+    private fun parseDraws(items: List<JsonObject>): List<Pair<String?, DienToanGame>> {
+        val draws = mutableListOf<Triple<String?, GameInfo, DienToanGame>>()
         for (obj in items) {
-            val date = obj.getString("date") ?: obj.getString("draw_date")
-            val gameCode = obj.getString("type") ?: obj.getString("game") ?: obj.getString("code")
-
-            if (gameCode != null) {
-                // Dạng mỗi phần tử là một trò chơi
-                val numbers = extractNumbers(obj.get("results") ?: obj.get("numbers") ?: obj.get("result"))
-                if (numbers.isNotEmpty()) {
-                    val info = gameInfo(gameCode)
-                    result.add(date to DienToanGame(info?.first ?: gameCode.uppercase(), "", numbers, info?.second ?: ""))
-                }
-            } else {
-                // Dạng mỗi phần tử là một ngày, các trò chơi nằm trong các key riêng
-                for ((key, value) in obj.entrySet()) {
-                    val info = gameInfo(key) ?: continue
-                    val numbers = extractNumbers(value)
-                    if (numbers.isNotEmpty()) {
-                        result.add(date to DienToanGame(info.first, "", numbers, info.second))
-                    }
-                }
+            val gameCode = obj.get("province")?.takeIf { it.isJsonObject }?.asJsonObject?.getString("code") ?: continue
+            val info = gameInfo(gameCode) ?: continue
+            val numbers = extractNumbers(obj.get("results"))
+            if (numbers.isNotEmpty()) {
+                draws.add(Triple(obj.getString("date"), info, DienToanGame(info.title, "", numbers, info.description)))
             }
         }
-        return result
+
+        // Ngày mới nhất lên đầu (loadData lấy ngày của phần tử đầu tiên), cùng ngày thì theo thứ tự 123 → 6x36 → Thần tài
+        return draws
+            .sortedWith(compareByDescending<Triple<String?, GameInfo, DienToanGame>> { it.first.orEmpty() }.thenBy { it.second.order })
+            .map { it.first to it.third }
     }
 
     private fun JsonObject.getString(key: String): String? {
@@ -177,22 +171,28 @@ class DienToanActivity : AppCompatActivity() {
         return if (element.isJsonPrimitive) element.asString else null
     }
 
-    private fun extractNumbers(element: JsonElement?): List<String> {
-        return when {
-            element == null || element.isJsonNull -> emptyList()
-            element.isJsonArray -> element.asJsonArray.filter { it.isJsonPrimitive }.map { it.asString }
-            element.isJsonPrimitive -> element.asString.split(Regex("[\\s,;-]+")).filter { it.isNotEmpty() }
-            else -> emptyList()
-        }
+    /** results: [ { prizeCode: "G1", prizeOrder: 1, values: ["8"] }, ... ] → các số theo thứ tự giải */
+    private fun extractNumbers(results: JsonElement?): List<String> {
+        if (results == null || !results.isJsonArray) return emptyList()
+        return results.asJsonArray
+            .filter { it.isJsonObject }
+            .map { it.asJsonObject }
+            .sortedBy { it.get("prizeOrder")?.takeIf { order -> order.isJsonPrimitive }?.asInt ?: Int.MAX_VALUE }
+            .flatMap { prize ->
+                prize.get("values")?.takeIf { it.isJsonArray }?.asJsonArray
+                    ?.filter { it.isJsonPrimitive }?.map { it.asString }
+                    .orEmpty()
+            }
     }
 
-    /** Tên hiển thị và cơ cấu giải theo mã trò chơi; null nếu không phải trò chơi điện toán đã biết */
-    private fun gameInfo(code: String): Pair<String, String>? {
-        val normalized = code.uppercase().replace(Regex("[^A-Z0-9]"), "")
-        return when {
-            normalized.contains("6X36") -> "ĐIỆN TOÁN 6X36" to "Cơ cấu giải: Chọn 6 cặp số từ 01 đến 36"
-            normalized.contains("123") -> "ĐIỆN TOÁN 123" to "Cơ cấu giải: Trúng khớp 1, 2 hoặc 3 bộ số"
-            normalized.contains("THANTAI") || normalized == "TT4" -> "THẦN TÀI 4" to "Cơ cấu giải: Trúng khớp 4 chữ số may mắn"
+    private data class GameInfo(val order: Int, val title: String, val description: String)
+
+    /** Tên hiển thị và cơ cấu giải theo mã trò của API; null nếu không phải trò điện toán đã biết */
+    private fun gameInfo(code: String): GameInfo? {
+        return when (code.uppercase()) {
+            "DT123" -> GameInfo(0, "ĐIỆN TOÁN 123", "Cơ cấu giải: Trúng khớp 1, 2 hoặc 3 bộ số")
+            "DT6X36" -> GameInfo(1, "ĐIỆN TOÁN 6X36", "Cơ cấu giải: Chọn 6 cặp số từ 01 đến 36")
+            "TT4" -> GameInfo(2, "THẦN TÀI 4", "Cơ cấu giải: Trúng khớp 4 chữ số may mắn")
             else -> null
         }
     }
@@ -228,6 +228,11 @@ class DienToanActivity : AppCompatActivity() {
             else -> "Chủ Nhật"
         }
         return "$dayOfWeek, ${displayDateFormat.format(date)}"
+    }
+
+    companion object {
+        /** Mã vùng Điện toán của API (Điện toán 123, 6x36, Thần tài 4) */
+        private const val REGION = "DIEN_TOAN"
     }
 
     data class DienToanGame(

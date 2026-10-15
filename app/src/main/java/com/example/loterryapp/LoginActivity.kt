@@ -19,7 +19,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private val authManager = AuthManager.getInstance()
 
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -62,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        fetchRoleAndNavigate()
+                        navigateToMain()
                     } else {
                         Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
@@ -84,24 +83,11 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // fetchUserRole tự tạo hồ sơ customer trong Firestore nếu user chưa có
-                    fetchRoleAndNavigate()
+                    navigateToMain()
                 } else {
                     Toast.makeText(this, "Firebase auth with Google failed", Toast.LENGTH_SHORT).show()
                 }
             }
-    }
-
-    private fun fetchRoleAndNavigate() {
-        authManager.fetchUserRole { role ->
-            if (role != null) {
-                navigateToMain()
-            } else {
-                Toast.makeText(this, "Failed to fetch user role", Toast.LENGTH_SHORT).show()
-                // Still navigate but role will be null
-                navigateToMain()
-            }
-        }
     }
 
     private fun navigateToMain() {

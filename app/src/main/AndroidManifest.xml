@@ -26,7 +26,6 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".AdminActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".VietnamLotteryActivity" />
         <activity android:name=".VietlottActivity" />

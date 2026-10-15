@@ -14,7 +14,6 @@ import com.google.firebase.ktx.Firebase
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
-    private val authManager = AuthManager.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,22 +49,12 @@ class RegisterActivity : AppCompatActivity() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        val user = task.result?.user
-                        if (user != null) {
-                            // User mới luôn là customer; quyền admin chỉ cấp trên Firebase Console
-                            authManager.saveUserRole(user.uid, email) { success ->
-                                if (success) {
-                                    Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
-                                    // Xoá LoginActivity khỏi back stack để nút Back không quay lại màn đăng nhập
-                                    val intent = Intent(this, MainActivity::class.java)
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
-                                    finish()
-                                } else {
-                                    Toast.makeText(this, "Không lưu được thông tin người dùng", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
+                        Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
+                        // Xoá LoginActivity khỏi back stack để nút Back không quay lại màn đăng nhập
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
                     } else {
                         Toast.makeText(this, "Đăng ký thất bại: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -29,7 +30,6 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun setupUI() {
         binding.tvEmail.text = "Email: ${authManager.getCurrentUserEmail()}"
-        binding.tvRole.text = "Quyền hạn: ${authManager.userRole ?: "N/A"}"
 
         binding.ivBack.setOnClickListener {
             finish()
@@ -58,6 +58,17 @@ class ProfileActivity : AppCompatActivity() {
             } else {
                 showOpenSettingsDialog()
             }
+        }
+
+        // Nút debug: chạy ngay Worker kiểm tra kết quả thật (gọi API + gửi thông báo), không cần chờ đến 19h
+        binding.btnRunCheckNow.visibility = if (BuildConfig.DEBUG) View.VISIBLE else View.GONE
+        binding.btnRunCheckNow.setOnClickListener {
+            if (!LotteryNotificationHelper.canPostNotifications(this)) {
+                showOpenSettingsDialog()
+                return@setOnClickListener
+            }
+            LotteryNotificationHelper.runTestCheckNow(this)
+            Toast.makeText(this, "Đang kiểm tra kết quả, thông báo sẽ hiện sau vài giây", Toast.LENGTH_SHORT).show()
         }
     }
 

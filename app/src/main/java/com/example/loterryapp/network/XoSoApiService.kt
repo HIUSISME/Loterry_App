@@ -1,8 +1,6 @@
 package com.example.loterryapp.network
 
 import com.example.loterryapp.network.models.ApiResponse
-import com.example.loterryapp.network.models.VietnamDrawDay
-import com.example.loterryapp.network.models.VietlottDraw
 import com.google.gson.JsonElement
 import retrofit2.Response
 import retrofit2.http.GET
@@ -10,7 +8,8 @@ import retrofit2.http.Query
 
 interface XoSoApiService {
     /**
-     * Lấy danh sách kết quả xổ số 3 miền theo vùng miền (MB, MN, MT) và ngày (YYYY-MM-DD)
+     * Lấy danh sách kết quả xổ số theo vùng và ngày (YYYY-MM-DD).
+     * region: MB, MT, MN, hoặc DIEN_TOAN (Điện toán 123, 6x36, Thần tài 4; mã trò nằm ở province.code)
      */
     @GET("api/v1/vietnam/draws")
     suspend fun getVietnamDraws(
@@ -32,16 +31,7 @@ interface XoSoApiService {
     suspend fun getVietlottDraws(
         @Query("type") type: String? = "MEGA645",
         @Query("limit") limit: Int? = 1
-    ): Response<ApiResponse<List<VietlottDraw>>>
-
-    /**
-     * Lấy kết quả Xổ Số Điện Toán
-     */
-    @GET("api/dientoan/draws")
-    suspend fun getDienToanDraws(
-        @Query("date") date: String? = null,
-        @Query("limit") limit: Int? = 10
-    ): Response<JsonElement>
+    ): Response<ApiResponse<JsonElement>>
 
     /**
      * Danh sách các đài/tỉnh

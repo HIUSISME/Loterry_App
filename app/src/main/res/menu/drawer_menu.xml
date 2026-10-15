@@ -35,10 +35,6 @@
     <item android:title="Xổ Số Điện Toán">
         <menu>
             <item
-                android:id="@+id/nav_lotto"
-                android:icon="@drawable/ic_star_filled"
-                android:title="Xổ Số Lotto 5/35" />
-            <item
                 android:id="@+id/nav_mega"
                 android:icon="@drawable/ic_star_filled"
                 android:title="Xổ Số Mega 6/45" />

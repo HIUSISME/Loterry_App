@@ -256,26 +256,55 @@
                 android:textSize="15sp"
                 android:visibility="gone" />
 
-            <!-- Result Table Card -->
+            <!-- Thẻ kết quả dạng mới (Miền Bắc, Miền Nam): tiêu đề, màu header và các dòng giải được đặt bằng code -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardResult"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:strokeColor="@color/card_stroke"
                 app:strokeWidth="1dp">
 
-                <TableLayout
-                    android:id="@+id/tableLayout"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#E2E8F0"
-                    android:padding="1dp"
-                    android:stretchColumns="*">
-                </TableLayout>
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvResultTitle"
+                        android:background="@drawable/bg_mb_header"
+                        android:gravity="center"
+                        android:paddingVertical="16dp"
+                        android:text="🏆  XỔ SỐ MIỀN BẮC"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvMaDb"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#FFFBEB"
+                        android:gravity="center"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="12dp"
+                        android:textColor="#374151"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutResultRows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

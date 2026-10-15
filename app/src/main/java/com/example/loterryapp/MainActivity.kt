@@ -3,7 +3,6 @@ package com.example.loterryapp
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -47,15 +46,6 @@ class MainActivity : AppCompatActivity() {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
 
-        // Fetch role if not already loaded
-        if (authManager.userRole == null) {
-            authManager.fetchUserRole { role ->
-                updateRoleUI(role)
-            }
-        } else {
-            updateRoleUI(authManager.userRole)
-        }
-
         // Handle back press to close drawer
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -86,7 +76,6 @@ class MainActivity : AppCompatActivity() {
         binding.btnThongKe.setOnClickListener { startActivity(Intent(this, ThongKeActivity::class.java)) }
 
         // Xổ số điện toán
-        binding.btnLotto.setOnClickListener { openVietlott("LOTTO535", "Lotto 5/35") }
         binding.btnMega.setOnClickListener { openVietlott("MEGA645", "Mega 6/45") }
         binding.btnPower.setOnClickListener { openVietlott("POWER655", "Power 6/55") }
         binding.btnMax3DPro.setOnClickListener { openVietlott("MAX3DPRO", "Max3D PRO") }
@@ -102,7 +91,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_mien_trung -> openVietnamLottery("MT", "Xổ Số Miền Trung")
                 R.id.nav_mien_nam -> openVietnamLottery("MN", "Xổ Số Miền Nam")
                 R.id.nav_thong_ke -> startActivity(Intent(this, ThongKeActivity::class.java))
-                R.id.nav_lotto -> openVietlott("LOTTO535", "Xổ Số Lotto 5/35")
                 R.id.nav_mega -> openVietlott("MEGA645", "Xổ Số Mega 6/45")
                 R.id.nav_power -> openVietlott("POWER655", "Xổ Số Power 6/55")
                 R.id.nav_max3d_pro -> openVietlott("MAX3DPRO", "Max3D PRO")
@@ -127,17 +115,6 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("TYPE", type)
         intent.putExtra("TITLE", title)
         startActivity(intent)
-    }
-
-    private fun updateRoleUI(role: String?) {
-        if (role == "admin") {
-            binding.btnAdminDashboard.visibility = View.VISIBLE
-            binding.btnAdminDashboard.setOnClickListener {
-                startActivity(Intent(this, AdminActivity::class.java))
-            }
-        } else {
-            binding.btnAdminDashboard.visibility = View.GONE
-        }
     }
 
     private fun setupUI() {

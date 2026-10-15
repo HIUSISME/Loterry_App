@@ -2,17 +2,20 @@ package com.example.loterryapp
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.loterryapp.data.DrawRepository
 import com.example.loterryapp.databinding.ActivityVietlottBinding
-import com.example.loterryapp.network.ApiClient
 import com.example.loterryapp.network.models.VietlottDraw
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class VietlottActivity : AppCompatActivity() {
@@ -20,6 +23,7 @@ class VietlottActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVietlottBinding
     private var type: String = "MEGA645"
     private var title: String = "Mega 6/45"
+    private val repository by lazy { DrawRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,22 +43,53 @@ class VietlottActivity : AppCompatActivity() {
 
     private fun loadData() {
         binding.progressBar.visibility = View.VISIBLE
+        binding.tvEmptyState.visibility = View.GONE
         lifecycleScope.launch {
+            // 1. Hiện ngay các kỳ quay đã lưu trên máy (nếu có), không cần chờ mạng
+            val showedSaved = showDraws(repository.getSavedVietlottDraws(type, LIMIT))
+            // Đã có dữ liệu để xem thì ẩn vòng xoay tải, tránh đẩy nội dung xuống rồi giật lên khi API trả về
+            if (showedSaved) binding.progressBar.visibility = View.GONE
+
+            // 2. Gọi API để lấy kỳ mới; repository tự lưu những kỳ mới / thay đổi vào database
             try {
-                val response = ApiClient.xosoService.getVietlottDraws(type = type, limit = 20)
+                val fresh = repository.fetchVietlottDraws(type, LIMIT)
                 binding.progressBar.visibility = View.GONE
-                val body = response.body()
-                if (response.isSuccessful && body?.success == true) {
-                    val draws = body.data ?: emptyList()
-                    binding.rvVietlott.adapter = VietlottAdapter(draws)
-                } else {
-                    android.widget.Toast.makeText(this@VietlottActivity, "API Error: ${body?.message ?: response.code()}", android.widget.Toast.LENGTH_SHORT).show()
+                if (!showDraws(fresh) && !showedSaved) {
+                    showEmptyState("Chưa có kết quả cho $title")
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                Log.e("VietlottActivity", "Error loading draws", e)
                 binding.progressBar.visibility = View.GONE
-                android.widget.Toast.makeText(this@VietlottActivity, "Network Error: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                if (showedSaved) {
+                    Toast.makeText(this@VietlottActivity, "Không cập nhật được, đang hiện kết quả đã lưu", Toast.LENGTH_SHORT).show()
+                } else if (e is DrawRepository.ApiException) {
+                    showEmptyState(e.message.orEmpty())
+                } else {
+                    showEmptyState("Lỗi mạng hoặc không thể tải dữ liệu: ${e.localizedMessage ?: "Vui lòng thử lại"}")
+                }
             }
         }
+    }
+
+    /** Trả về false nếu không có gì để hiện */
+    private fun showDraws(draws: List<VietlottDraw>): Boolean {
+        if (draws.isEmpty()) return false
+        binding.tvEmptyState.visibility = View.GONE
+        binding.rvVietlott.adapter = VietlottAdapter(draws)
+        return true
+    }
+
+    private fun showEmptyState(message: String) {
+        binding.rvVietlott.adapter = VietlottAdapter(emptyList())
+        binding.tvEmptyState.visibility = View.VISIBLE
+        binding.tvEmptyState.text = message
+    }
+
+    companion object {
+        /** Số kỳ quay gần nhất hiển thị */
+        private const val LIMIT = 20
     }
 
     class VietlottAdapter(private val draws: List<VietlottDraw>) : RecyclerView.Adapter<VietlottAdapter.ViewHolder>() {
