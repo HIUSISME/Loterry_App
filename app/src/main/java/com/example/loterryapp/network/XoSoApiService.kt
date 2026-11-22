@@ -30,7 +30,9 @@ interface XoSoApiService {
     @GET("api/vietlott/draws")
     suspend fun getVietlottDraws(
         @Query("type") type: String? = "MEGA645",
-        @Query("limit") limit: Int? = 1
+        @Query("limit") limit: Int? = 1,
+        /** yyyy-MM-dd: chỉ lấy các kỳ quay của ngày này; null = các kỳ mới nhất */
+        @Query("date") date: String? = null
     ): Response<ApiResponse<JsonElement>>
 
     /**

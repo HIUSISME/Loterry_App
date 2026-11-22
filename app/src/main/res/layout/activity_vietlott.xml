@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/gray_light"
+    android:background="@color/bg_screen"
     tools:context=".VietlottActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -35,7 +35,7 @@
                     android:focusable="true"
                     android:padding="8dp"
                     android:src="@drawable/ic_back"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
 
                 <TextView
                     android:id="@+id/tvToolbarTitle"
@@ -43,12 +43,58 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="Vietlott"
-                    android:textColor="@color/white"
+                    android:textColor="@color/on_brand"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
+                <!-- Chọn ngày quay để xem -->
+                <ImageView
+                    android:id="@+id/ivCalendar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="Chọn ngày"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/on_brand" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Hiện khi đang xem một ngày cụ thể -->
+    <LinearLayout
+        android:id="@+id/layoutDateFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gold_container"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvSelectedDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnShowLatest"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xem mới nhất"
+            android:textColor="@color/brand_text"
+            android:textSize="13sp" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

@@ -121,6 +121,52 @@ data class VietlottDraw(
     @SerializedName("draw_number") val drawNumber: Long? = null,
     @SerializedName("date") val date: String? = null,
     @SerializedName("jackpot") val jackpot: Long? = null,
-    @SerializedName("results") val results: List<String>? = null,
-    @SerializedName("province") val province: ProvinceInfo? = null
-)
+    /**
+     * Khác nhau theo loại:
+     * - Mega 6/45, Power 6/55: danh sách số ["07", "23", ...]
+     * - Max 3D, Max 3D Pro: theo giải { "DB": ["897", "099"], "G1": [...], "G2": [...], "G3": [...] }
+     * - Keno: { "JACKPOT": [20 số] }
+     * Dùng numbers() hoặc resultsByPrize() thay vì đọc trực tiếp.
+     */
+    @SerializedName("results") val results: JsonElement? = null,
+    /** Tất cả các số theo thứ tự, luôn là danh sách với mọi loại */
+    @SerializedName("results_flat") val resultsFlat: List<String>? = null,
+    @SerializedName("province") val province: ProvinceInfo? = null,
+    /** { "MEGA645_JACKPOT": { amount, count }, "G1": {...}, "G2": {...}, "G3": {...} } */
+    @SerializedName("prizes") val prizes: JsonElement? = null
+) {
+    /** Tất cả các số trúng theo thứ tự (với Max 3D: ĐB, G1, G2, G3 nối liền) */
+    fun numbers(): List<String> {
+        resultsFlat?.takeIf { it.isNotEmpty() }?.let { return it }
+        return resultsByPrize().flatMap { it.second }
+    }
+
+    /**
+     * Các số theo từng giải, giữ thứ tự của API.
+     * Với Mega / Power (results là danh sách) trả về một nhóm duy nhất có mã "".
+     */
+    fun resultsByPrize(): List<Pair<String, List<String>>> {
+        val element = results ?: return emptyList()
+        fun valuesOf(e: JsonElement) = if (e.isJsonArray) e.asJsonArray.filter { it.isJsonPrimitive }.map { it.asString } else emptyList()
+        return when {
+            element.isJsonArray -> listOf("" to valuesOf(element))
+            element.isJsonObject -> element.asJsonObject.entrySet().map { (code, value) -> code to valuesOf(value) }
+            else -> emptyList()
+        }
+    }
+
+    /** Giá trị (đồng) và số lượng giải của một mã giải, VD "G1" hoặc "MEGA645_JACKPOT" */
+    fun getPrize(code: String): Pair<Long?, Int?> {
+        val prize = prizes?.takeIf { it.isJsonObject }?.asJsonObject?.get(code)?.takeIf { it.isJsonObject }?.asJsonObject
+            ?: return null to null
+        val amount = prize.get("amount")?.takeIf { it.isJsonPrimitive }?.asString?.toLongOrNull()
+        val count = prize.get("count")?.takeIf { it.isJsonPrimitive }?.asString?.toIntOrNull()
+        return amount to count
+    }
+
+    /** Giá trị Jackpot; null nếu API chưa cập nhật (trả về null hoặc 0) */
+    fun jackpotAmount(): Long? {
+        val amount = jackpot ?: getPrize("${type ?: province?.code}_JACKPOT").first
+        return amount?.takeIf { it > 0 }
+    }
+}

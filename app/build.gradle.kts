@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.loterryapp"
-        minSdk = 31
+        minSdk = 29
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -54,6 +54,7 @@ android {
 dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
     implementation(libs.play.services.auth)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

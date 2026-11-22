@@ -2,7 +2,7 @@ package com.example.loterryapp
 
 import android.app.DatePickerDialog
 import android.content.res.ColorStateList
-import android.graphics.Color
+import androidx.core.content.ContextCompat
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableStringBuilder
@@ -107,10 +107,10 @@ class VietnamLotteryActivity : AppCompatActivity() {
 
     private fun setFilterMode(mode: String) {
         currentFilter = mode
-        val activeBg = Color.parseColor("#C62828")
-        val inactiveBg = Color.parseColor("#F1F5F9")
-        val activeText = Color.WHITE
-        val inactiveText = Color.parseColor("#1E293B")
+        val activeBg = color(R.color.header_red)
+        val inactiveBg = color(R.color.surface_variant)
+        val activeText = color(R.color.on_brand)
+        val inactiveText = color(R.color.text_primary)
         
         binding.btnFilterAll.apply { 
             backgroundTintList = ColorStateList.valueOf(if (mode == "ALL") activeBg else inactiveBg)
@@ -137,9 +137,12 @@ class VietnamLotteryActivity : AppCompatActivity() {
         loadJob?.cancel()
         loadJob = lifecycleScope.launch {
             // 1. Hiện ngay kết quả đã lưu trên máy (nếu có), không cần chờ mạng
-            val showedSaved = showDraws(repository.getSavedVietnamDraws(region, dateQuery))
+            val saved = repository.getSavedVietnamDraws(region, dateQuery)
+            val showedSaved = showDraws(saved)
             // Đã có dữ liệu để xem thì ẩn vòng xoay tải, tránh đẩy nội dung xuống rồi giật lên khi API trả về
             if (showedSaved) binding.progressBar.visibility = View.GONE
+            // Ngày đã qua và đã quay xong: kết quả không đổi nữa, không cần gọi API
+            if (repository.isFinalVietnam(region, dateQuery, saved)) return@launch
 
             // 2. Gọi API để lấy kết quả mới; repository tự lưu những kỳ mới / thay đổi vào database
             try {
@@ -160,7 +163,7 @@ class VietnamLotteryActivity : AppCompatActivity() {
                 if (showedSaved) {
                     Toast.makeText(this@VietnamLotteryActivity, "Không cập nhật được, đang hiện kết quả đã lưu", Toast.LENGTH_SHORT).show()
                 } else {
-                    showEmptyState(if (e is DrawRepository.ApiException) e.message.orEmpty() else "Lỗi: ${e.message}")
+                    showEmptyState(DrawRepository.errorMessage(e))
                 }
             }
         }
@@ -247,7 +250,7 @@ class VietnamLotteryActivity : AppCompatActivity() {
             val start = length
             append(maDb.joinToString(" - "))
             setSpan(StyleSpan(Typeface.BOLD), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(ForegroundColorSpan(Color.parseColor("#111827")), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(color(R.color.text_primary)), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         MB_PRIZES.forEachIndexed { index, (prizeCode, label) ->
@@ -269,18 +272,18 @@ class VietnamLotteryActivity : AppCompatActivity() {
         binding.layoutResultRows.addView(createMultiRow(
             label = "Giải",
             labelBold = true,
-            background = Color.parseColor("#F3F4F6"),
+            background = color(R.color.surface_variant),
             cells = provinces.map { province ->
-                createCellText(province.getProvinceName(), Color.parseColor("#374151"), if (compact) 13f else 14f, bold = false)
+                createCellText(province.getProvinceName(), color(R.color.text_secondary), if (compact) 13f else 14f, bold = false)
             }
         ))
 
         MULTI_PROVINCE_PRIZES.forEach { (prizeCode, label) ->
             binding.layoutResultRows.addView(createDivider(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)))
             val background = when (prizeCode) {
-                "DB" -> Color.parseColor("#FFF1F2")
-                "G8" -> Color.parseColor("#F8FAFC")
-                else -> Color.WHITE
+                "DB" -> color(R.color.red_container)
+                "G8" -> color(R.color.surface_variant)
+                else -> color(R.color.surface)
             }
             binding.layoutResultRows.addView(createMultiRow(
                 label = label,
@@ -302,8 +305,8 @@ class VietnamLotteryActivity : AppCompatActivity() {
                 text = label
                 gravity = Gravity.CENTER
                 // Hàng tiêu đề dùng chung nền xám; các hàng giải có cột tên giải nền trắng
-                setBackgroundColor(if (labelBold) background else Color.WHITE)
-                setTextColor(Color.parseColor(if (labelBold) "#111827" else "#6B7280"))
+                setBackgroundColor(if (labelBold) background else color(R.color.surface))
+                setTextColor(color(if (labelBold) R.color.text_primary else R.color.text_secondary))
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                 if (labelBold) setTypeface(null, Typeface.BOLD)
                 setPadding(dpToPx(4), dpToPx(12), dpToPx(4), dpToPx(12))
@@ -322,9 +325,9 @@ class VietnamLotteryActivity : AppCompatActivity() {
     /** Các số của một đài trong một giải, xếp dọc từng số một dòng */
     private fun createNumberColumn(numbers: List<String>, prizeCode: String, compact: Boolean): LinearLayout {
         val (color, size) = when (prizeCode) {
-            "DB" -> Color.parseColor("#E60012") to if (compact) 17f else 20f
-            "G8" -> Color.parseColor("#EF4444") to if (compact) 16f else 17f
-            else -> Color.parseColor("#111827") to if (compact) 14f else 15f
+            "DB" -> color(R.color.result_special) to if (compact) 17f else 20f
+            "G8" -> color(R.color.result_red) to if (compact) 16f else 17f
+            else -> color(R.color.text_primary) to if (compact) 14f else 15f
         }
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -356,9 +359,9 @@ class VietnamLotteryActivity : AppCompatActivity() {
 
     private fun createMbRow(label: String, numbers: List<String>, prizeCode: String, index: Int): LinearLayout {
         val rowBg = when {
-            prizeCode == "DB" -> Color.parseColor("#FFF1F2")
-            index % 2 == 0 -> Color.parseColor("#F8FAFC")
-            else -> Color.WHITE
+            prizeCode == "DB" -> color(R.color.red_container)
+            index % 2 == 0 -> color(R.color.surface_variant)
+            else -> color(R.color.surface)
         }
 
         return LinearLayout(this).apply {
@@ -370,7 +373,7 @@ class VietnamLotteryActivity : AppCompatActivity() {
             addView(TextView(this@VietnamLotteryActivity).apply {
                 text = label
                 gravity = Gravity.CENTER
-                setTextColor(Color.parseColor("#374151"))
+                setTextColor(color(R.color.text_secondary))
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
                 layoutParams = LinearLayout.LayoutParams(dpToPx(84), LinearLayout.LayoutParams.MATCH_PARENT)
             })
@@ -406,17 +409,17 @@ class VietnamLotteryActivity : AppCompatActivity() {
             setTypeface(null, Typeface.BOLD)
             when (prizeCode) {
                 "DB" -> {
-                    setTextColor(Color.parseColor("#E60012"))
+                    setTextColor(color(R.color.result_special))
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 30f)
                     letterSpacing = 0.18f
                 }
                 "G7" -> {
-                    setTextColor(Color.parseColor("#EF4444"))
+                    setTextColor(color(R.color.result_red))
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
                     letterSpacing = 0.1f
                 }
                 else -> {
-                    setTextColor(Color.parseColor("#111827"))
+                    setTextColor(color(R.color.text_primary))
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
                     letterSpacing = 0.1f
                 }
@@ -441,12 +444,15 @@ class VietnamLotteryActivity : AppCompatActivity() {
 
     private fun createDivider(width: Int, height: Int): View {
         return View(this).apply {
-            setBackgroundColor(Color.parseColor("#E5E7EB"))
+            setBackgroundColor(color(R.color.divider))
             layoutParams = LinearLayout.LayoutParams(width, height)
         }
     }
 
     private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+
+    /** Lấy màu từ bộ màu (tự đổi theo chế độ sáng / tối) */
+    private fun color(resId: Int): Int = ContextCompat.getColor(this, resId)
 
     companion object {
         private val MB_PRIZES = listOf(

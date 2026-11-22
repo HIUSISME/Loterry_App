@@ -1,20 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bộ màu của VLottery. Mọi màn hình dùng các TÊN màu ở đây, không viết mã hex trực tiếp,
+    để chế độ tối (values-night/colors.xml) tự đổi màu theo.
+-->
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Thương hiệu: thanh tiêu đề, nút chính -->
     <color name="header_red">#C62828</color>
     <color name="header_red_dark">#B71C1C</color>
-    <color name="ad_blue">#007AFF</color>
-    <color name="gray_light">#F8F9FA</color>
+    <!-- Chữ / icon đặt trên nền đỏ thương hiệu (luôn trắng, cả sáng lẫn tối) -->
+    <color name="on_brand">#FFFFFFFF</color>
+    <!-- Nền nhạt màu đỏ: nút đang chọn dạng tonal, nhãn, thẻ nổi bật -->
+    <color name="brand_container">#FDE2E2</color>
+    <color name="on_brand_container">#B71C1C</color>
+    <!-- Chữ / icon màu đỏ thương hiệu đặt trên nền thẻ (Trước / Sau, liên kết): ở chế độ tối đổi sang đỏ sáng cho dễ đọc -->
+    <color name="brand_text">#C62828</color>
 
+    <!-- Nền và bề mặt -->
+    <color name="bg_screen">#F8F9FA</color>
+    <color name="gray_light">#F8F9FA</color> <!-- tên cũ, giống bg_screen -->
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F1F5F9</color>
     <color name="card_stroke">#E2E8F0</color>
+    <color name="divider">#E5E7EB</color>
+
+    <!-- Chữ -->
     <color name="text_primary">#1E293B</color>
     <color name="text_secondary">#64748B</color>
+    <color name="text_tertiary">#94A3B8</color>
 
+    <!-- Con số kết quả (giải, bóng số) -->
+    <color name="result_red">#D00018</color>
+    <color name="result_special">#E00012</color>
+
+    <!-- Vietlott: thẻ vàng -->
+    <color name="gold">#F5B400</color>
+    <color name="gold_dark">#A65A00</color>
+    <color name="gold_container">#FFF8E1</color>
+    <color name="on_gold">#1E293B</color>
+
+    <!-- Màu nhấn theo chức năng (icon) và nền nhạt tương ứng -->
     <color name="icon_red">#DC2626</color>
     <color name="icon_blue">#2563EB</color>
     <color name="icon_orange">#EA580C</color>
     <color name="icon_purple">#9333EA</color>
     <color name="icon_green">#16A34A</color>
     <color name="icon_teal">#0D9488</color>
+    <color name="red_container">#FEE2E2</color>
+    <color name="blue_container">#DBEAFE</color>
+    <color name="orange_container">#FFEDD5</color>
+    <color name="purple_container">#F3E8FF</color>
+    <color name="green_container">#DCFCE7</color>
+    <color name="teal_container">#CCFBF1</color>
+
+    <!-- Màu header từng miền -->
+    <color name="region_mb_start">#C1000A</color>
+    <color name="region_mb_end">#E60012</color>
+    <color name="region_mn_start">#00873A</color>
+    <color name="region_mn_end">#00A63E</color>
+    <color name="region_mt_start">#A65A00</color>
+    <color name="region_mt_end">#D68A00</color>
+
+    <color name="ad_blue">#007AFF</color>
 </resources>

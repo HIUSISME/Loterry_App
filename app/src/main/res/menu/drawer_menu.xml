@@ -11,6 +11,11 @@
         android:icon="@drawable/ic_star_filled"
         android:title="🤖 Trợ Lý AI Thông Minh" />
 
+    <item
+        android:id="@+id/nav_ticket_check"
+        android:icon="@drawable/ic_ticket"
+        android:title="🎫 Dò Vé Số" />
+
     <item android:title="Xổ Số Kiến Thiết">
         <menu>
             <item

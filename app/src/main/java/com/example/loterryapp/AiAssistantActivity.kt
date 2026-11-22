@@ -10,22 +10,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.loterryapp.ai.LotteryAiTools
+import com.example.loterryapp.data.UserProfileStore
 import com.example.loterryapp.databinding.ActivityAiAssistantBinding
 import com.example.loterryapp.network.AppConfig
 import com.example.loterryapp.notification.LotteryNotificationHelper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -35,6 +35,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.Period
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -45,11 +47,21 @@ class AiAssistantActivity : AppCompatActivity() {
     private val chatMessages = mutableListOf<ChatMessage>()
     private lateinit var chatAdapter: ChatAdapter
 
-    private val prefs by lazy { getSharedPreferences("VLotteryAiPrefs", MODE_PRIVATE) }
-    private var geminiApiKey: String = ""
+    /** Key lấy từ local.properties (qua BuildConfig) */
+    private val geminiApiKey: String = AppConfig.GEMINI_API_KEY
 
     /** Các hàm tra cứu kết quả (database / API) mà Gemini được phép gọi */
     private val aiTools by lazy { LotteryAiTools(this) }
+
+    /**
+     * Lịch sử hội thoại gửi kèm mỗi lần hỏi để AI nhớ ngữ cảnh ("thế còn miền Bắc?").
+     * Gồm cả lượt gọi hàm và kết quả hàm, nên AI dùng lại được số liệu đã tra mà không phải gọi lại.
+     * Chỉ lưu trong bộ nhớ khi màn hình đang mở; chỉ thêm vào khi một lượt hỏi đáp thành công.
+     */
+    private val history = mutableListOf<JSONObject>()
+
+    /** Xử lý lần lượt từng câu hỏi, để lịch sử luôn đúng thứ tự hỏi - đáp */
+    private val historyMutex = Mutex()
 
     // Gemini có thể mất vài chục giây để trả lời, nên tăng timeout so với mặc định 10s
     private val httpClient = OkHttpClient.Builder()
@@ -61,9 +73,6 @@ class AiAssistantActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAiAssistantBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Key người dùng tự nhập (nếu có) được ưu tiên hơn key trong local.properties
-        geminiApiKey = prefs.getString("gemini_api_key", null).orEmpty().ifEmpty { AppConfig.GEMINI_API_KEY }
 
         setupChat()
         setupListeners()
@@ -84,15 +93,11 @@ class AiAssistantActivity : AppCompatActivity() {
         }
         binding.rvChat.adapter = chatAdapter
 
-        addMessage(ChatMessage("🤖 Chào bạn! Tôi là **Trợ lý AI VLottery**. Bạn có thể hỏi tôi về dự đoán xổ số, thống kê lô gan, kết quả giải đặc biệt, hoặc gợi ý số may mắn hôm nay!", false))
+        addMessage(ChatMessage("🤖 Chào bạn! Tôi là **Trợ lý AI VLottery**. Bạn có thể hỏi tôi về kết quả xổ số, giải đặc biệt, thống kê các con số, hoặc xin vài con số tham khảo. Lưu ý: xổ số là ngẫu nhiên, không ai dự đoán được kết quả.", false))
     }
 
     private fun setupListeners() {
         binding.ivBack.setOnClickListener { finish() }
-
-        binding.ivApiKey.setOnClickListener {
-            showApiKeyDialog()
-        }
 
         binding.btnSend.setOnClickListener {
             val text = binding.etMessage.text.toString().trim()
@@ -113,8 +118,9 @@ class AiAssistantActivity : AppCompatActivity() {
             }
         }
 
-        binding.chipPredict.setOnClickListener {
-            sendMessage("🔮 Dự đoán số may mắn hôm nay cho tôi dựa trên thuật toán AI")
+        // Xổ số là ngẫu nhiên: chỉ xin gợi ý tham khảo, không gọi là "dự đoán" để tránh gây hiểu lầm
+        binding.chipSuggest.setOnClickListener {
+            sendMessage("🎲 Gợi ý cho tôi vài con số tham khảo hôm nay")
         }
 
         binding.chipHot.setOnClickListener {
@@ -126,37 +132,12 @@ class AiAssistantActivity : AppCompatActivity() {
         }
     }
 
-    private fun showApiKeyDialog() {
-        val input = EditText(this).apply {
-            hint = "Nhập Gemini API Key"
-            setText(geminiApiKey)
-            setPadding(48, 32, 48, 32)
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle("Cấu hình Gemini API Key")
-            .setMessage("Tạo key tại aistudio.google.com rồi dán vào đây:")
-            .setView(input)
-            .setPositiveButton("Lưu") { _, _ ->
-                val key = input.text.toString().trim()
-                if (key.isNotEmpty()) {
-                    geminiApiKey = key
-                    prefs.edit().putString("gemini_api_key", key).apply()
-                    Toast.makeText(this, "Đã lưu thành công!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Mã không được để trống", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Hủy", null)
-            .show()
-    }
-
     private fun sendMessage(userText: String) {
         addMessage(ChatMessage(userText, true))
         binding.etMessage.setText("")
 
         if (geminiApiKey.isEmpty()) {
-            addMessage(ChatMessage("⚠️ Chưa cấu hình Gemini API Key. Bấm biểu tượng chìa khoá ở góc trên để nhập key.", false))
+            addMessage(ChatMessage("⚠️ Trợ lý AI chưa được cấu hình (thiếu Gemini API Key). Vui lòng thử lại sau.", false))
             return
         }
 
@@ -166,7 +147,7 @@ class AiAssistantActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val aiReply = try {
-                withContext(Dispatchers.IO) { askGemini(geminiApiKey, userText) }
+                withContext(Dispatchers.IO) { historyMutex.withLock { askGemini(geminiApiKey, userText) } }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: GeminiException) {
@@ -192,13 +173,18 @@ class AiAssistantActivity : AppCompatActivity() {
     /**
      * Hỏi Gemini, cho phép Gemini gọi các hàm tra cứu kết quả (function calling):
      * Gemini trả về functionCall -> app chạy hàm (database / API) -> gửi functionResponse -> Gemini trả lời bằng chữ.
+     * Gửi kèm lịch sử các lượt trước để AI hiểu câu hỏi nối tiếp.
      */
     private suspend fun askGemini(apiKey: String, userText: String): String {
-        val contents = JSONArray().put(
+        // Các nội dung của lượt này; chỉ ghép vào history khi có câu trả lời (lỗi thì bỏ cả lượt)
+        val turn = mutableListOf(
             JSONObject()
                 .put("role", "user")
                 .put("parts", JSONArray().put(JSONObject().put("text", userText)))
         )
+        val contents = JSONArray()
+        history.forEach { contents.put(it) }
+        contents.put(turn.first())
 
         repeat(MAX_TOOL_ROUNDS) {
             val body = JSONObject()
@@ -216,11 +202,15 @@ class AiAssistantActivity : AppCompatActivity() {
                     // Không có nội dung: thường do câu hỏi bị bộ lọc an toàn của Gemini chặn
                     throw GeminiException("Trợ lý AI không thể trả lời câu hỏi này. Bạn thử hỏi theo cách khác nhé.")
                 }
+                turn += modelContent.put("role", "model")
+                history += turn
+                trimHistory()
                 return text
             }
 
             // Gửi lại nguyên nội dung model trả về (kèm thoughtSignature mà Gemini yêu cầu), rồi kết quả của từng hàm
             contents.put(modelContent)
+            turn += modelContent
             val responses = JSONArray()
             for (call in functionCalls) {
                 val name = call.optString("name")
@@ -232,9 +222,26 @@ class AiAssistantActivity : AppCompatActivity() {
                 call.optString("id").takeIf { it.isNotEmpty() }?.let { functionResponse.put("id", it) }
                 responses.put(JSONObject().put("functionResponse", functionResponse))
             }
-            contents.put(JSONObject().put("role", "user").put("parts", responses))
+            val responseContent = JSONObject().put("role", "user").put("parts", responses)
+            contents.put(responseContent)
+            turn += responseContent
         }
         throw GeminiException("Trợ lý AI chưa tra cứu xong dữ liệu. Bạn thử hỏi lại ngắn gọn hơn nhé.")
+    }
+
+    /**
+     * Chỉ giữ MAX_HISTORY_TURNS lượt hỏi gần nhất để request không quá dài (tốn token, chậm).
+     * Cắt tại đầu một câu hỏi của người dùng, không cắt giữa cặp functionCall / functionResponse.
+     */
+    private fun trimHistory() {
+        val questionStarts = history.indices.filter { i ->
+            val content = history[i]
+            content.optString("role") == "user" &&
+                content.optJSONArray("parts")?.optJSONObject(0)?.has("text") == true
+        }
+        if (questionStarts.size > MAX_HISTORY_TURNS) {
+            repeat(questionStarts[questionStarts.size - MAX_HISTORY_TURNS]) { history.removeAt(0) }
+        }
     }
 
     /** Gửi một request tới Gemini, trả về "content" của câu trả lời */
@@ -251,7 +258,7 @@ class AiAssistantActivity : AppCompatActivity() {
                 Log.e("AiAssistantActivity", "HTTP ${response.code}: $responseString")
                 throw GeminiException(
                     when (response.code) {
-                        400, 401, 403 -> "Gemini API Key không hợp lệ hoặc đã bị thu hồi. Bấm biểu tượng chìa khoá để nhập key mới."
+                        400, 401, 403 -> "Gemini API Key không hợp lệ hoặc đã bị thu hồi. Hãy cập nhật GEMINI_API_KEY trong local.properties."
                         404 -> "Model \"${AppConfig.GEMINI_MODEL}\" không tồn tại hoặc đã ngừng hoạt động. Hãy đổi GEMINI_MODEL trong local.properties."
                         429 -> "Đã vượt giới hạn sử dụng Gemini. Vui lòng thử lại sau ít phút."
                         503 -> "Trợ lý AI đang quá tải do nhiều người dùng cùng lúc. Vui lòng thử lại sau ít phút."
@@ -287,7 +294,32 @@ class AiAssistantActivity : AppCompatActivity() {
             Tuyệt đối không tự bịa ra con số kết quả. Nếu hàm không có dữ liệu, hãy nói rõ là chưa có kết quả (có thể chưa đến giờ quay).
             Trả lời bằng tiếng Việt, súc tích, thân thiện.
             Xổ số là ngẫu nhiên: khi gợi ý số, hãy nói rõ đó chỉ là gợi ý tham khảo, không đảm bảo trúng thưởng.
-        """.trimIndent()
+        """.trimIndent() + userContext()
+    }
+
+    /**
+     * Thông tin cá nhân của người dùng cho AI, CHỈ khi người dùng đã đồng ý ở màn Hồ sơ.
+     * Chỉ gửi những gì giúp trả lời tốt hơn: tên (để xưng hô), tuổi (không gửi ngày sinh), giới tính, tỉnh/thành.
+     * Không gửi số điện thoại.
+     */
+    private fun userContext(): String {
+        val uid = AuthManager.getInstance().getCurrentUserUid() ?: return ""
+        val profile = UserProfileStore(this, uid).load()
+        if (profile.aiConsent != true) return ""
+
+        val age = profile.birthday.takeIf { it.isNotEmpty() }
+            ?.let { runCatching { Period.between(LocalDate.parse(it), LocalDate.now()).years }.getOrNull() }
+        val facts = listOfNotNull(
+            profile.fullName.takeIf { it.isNotEmpty() }?.let { "Tên: $it" },
+            age?.let { "Tuổi: $it" },
+            profile.gender.takeIf { it.isNotEmpty() }?.let { "Giới tính: $it" },
+            profile.province.takeIf { it.isNotEmpty() }?.let { "Tỉnh/thành đang sống: $it" }
+        )
+        if (facts.isEmpty()) return ""
+
+        return "\n\nThông tin người dùng (người dùng đã đồng ý chia sẻ với bạn): ${facts.joinToString("; ")}.\n" +
+            "Hãy xưng hô phù hợp với tên, tuổi và giới tính. Khi hữu ích, ưu tiên đài xổ số của miền/tỉnh người dùng đang sống. " +
+            "Không nhắc lại các thông tin này nếu câu hỏi không cần đến."
     }
 
     private class GeminiException(message: String) : Exception(message)
@@ -348,6 +380,9 @@ class AiAssistantActivity : AppCompatActivity() {
     companion object {
         /** Số lần tối đa Gemini được gọi hàm trong một câu hỏi, tránh lặp vô hạn */
         private const val MAX_TOOL_ROUNDS = 4
+
+        /** Số lượt hỏi - đáp gần nhất AI được nhớ */
+        private const val MAX_HISTORY_TURNS = 10
 
         /** **đậm** (nhóm 1) hoặc *nghiêng* (nhóm 2) */
         private val LIST_BULLET = Regex("""(?m)^(\s*)[*-]\s+""")

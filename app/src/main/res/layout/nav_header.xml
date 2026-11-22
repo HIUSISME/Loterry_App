@@ -11,15 +11,16 @@
     <ImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:importantForAccessibility="no"
         android:src="@drawable/ic_ticket"
-        app:tint="@color/white" />
+        app:tint="@color/on_brand" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="VLottery"
-        android:textColor="@color/white"
+        android:textColor="@color/on_brand"
         android:textSize="22sp"
         android:textStyle="bold"
         android:letterSpacing="0.05" />

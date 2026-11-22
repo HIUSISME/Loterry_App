@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray_light"
+    android:background="@color/bg_screen"
     android:orientation="vertical"
     tools:context=".VietnamLotteryActivity">
 
@@ -36,7 +36,7 @@
                     android:focusable="true"
                     android:padding="8dp"
                     android:src="@drawable/ic_back"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
 
                 <TextView
                     android:id="@+id/tvToolbarTitle"
@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="Xổ Số Miền Nam"
-                    android:textColor="@color/white"
+                    android:textColor="@color/on_brand"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -59,7 +59,7 @@
                     android:focusable="true"
                     android:padding="8dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -71,7 +71,7 @@
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/surface"
         app:cardCornerRadius="12dp"
         app:cardElevation="1dp"
         app:strokeColor="@color/card_stroke"
@@ -106,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Trước"
-                    android:textColor="@color/header_red"
+                    android:textColor="@color/brand_text"
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -142,7 +142,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sau"
-                    android:textColor="@color/header_red"
+                    android:textColor="@color/brand_text"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -161,7 +161,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="12dp"
         android:layout_marginBottom="12dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/surface"
         app:cardCornerRadius="12dp"
         app:cardElevation="1dp"
         app:strokeColor="@color/card_stroke"
@@ -185,7 +185,7 @@
                 android:insetBottom="0dp"
                 android:padding="0dp"
                 android:text="Đầy đủ"
-                android:textColor="@color/white"
+                android:textColor="@color/on_brand"
                 android:textSize="13sp"
                 app:backgroundTint="@color/header_red"
                 app:cornerRadius="10dp" />
@@ -203,7 +203,7 @@
                 android:text="3 Số"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp"
-                app:backgroundTint="#F1F5F9"
+                app:backgroundTint="@color/surface_variant"
                 app:cornerRadius="10dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -219,7 +219,7 @@
                 android:text="2 Số"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp"
-                app:backgroundTint="#F1F5F9"
+                app:backgroundTint="@color/surface_variant"
                 app:cornerRadius="10dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -263,7 +263,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:strokeColor="@color/card_stroke"
@@ -282,7 +282,7 @@
                         android:gravity="center"
                         android:paddingVertical="16dp"
                         android:text="🏆  XỔ SỐ MIỀN BẮC"
-                        android:textColor="@color/white"
+                        android:textColor="@color/on_brand"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -290,11 +290,11 @@
                         android:id="@+id/tvMaDb"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#FFFBEB"
+                        android:background="@color/gold_container"
                         android:gravity="center"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="12dp"
-                        android:textColor="#374151"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
 
                     <LinearLayout

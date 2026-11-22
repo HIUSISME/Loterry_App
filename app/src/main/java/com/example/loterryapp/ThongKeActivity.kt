@@ -1,8 +1,8 @@
 package com.example.loterryapp
 
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -12,7 +12,9 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.loterryapp.databinding.ActivityThongKeBinding
 import com.example.loterryapp.network.ApiClient
@@ -88,11 +90,13 @@ class ThongKeActivity : AppCompatActivity() {
         }
     }
 
+    private fun color(@ColorRes id: Int): Int = ContextCompat.getColor(this, id)
+
     private fun updateRegionUI() {
-        val activeBg = Color.parseColor("#0D9488")
-        val inactiveBg = Color.parseColor("#334155")
-        val activeText = Color.WHITE
-        val inactiveText = Color.parseColor("#94A3B8")
+        val activeBg = color(R.color.header_red)
+        val inactiveBg = color(R.color.surface_variant)
+        val activeText = color(R.color.on_brand)
+        val inactiveText = color(R.color.text_secondary)
 
         binding.btnRegionMB.backgroundTintList = ColorStateList.valueOf(if (currentRegion == "MB") activeBg else inactiveBg)
         binding.btnRegionMB.setTextColor(if (currentRegion == "MB") activeText else inactiveText)
@@ -105,10 +109,11 @@ class ThongKeActivity : AppCompatActivity() {
     }
 
     private fun updateTabUI() {
-        val activeBg = Color.parseColor("#C62828")
-        val inactiveBg = Color.parseColor("#334155")
-        val activeText = Color.WHITE
-        val inactiveText = Color.parseColor("#94A3B8")
+        // Tab dùng kiểu tonal (nền đỏ nhạt) để phân biệt với nút miền (nền đỏ đậm)
+        val activeBg = color(R.color.brand_container)
+        val inactiveBg = color(R.color.surface_variant)
+        val activeText = color(R.color.on_brand_container)
+        val inactiveText = color(R.color.text_secondary)
 
         if (currentTab == "HOT") {
             binding.btnTabHot.backgroundTintList = ColorStateList.valueOf(activeBg)
@@ -211,7 +216,7 @@ class ThongKeActivity : AppCompatActivity() {
                 Log.e("ThongKeActivity", "Error loading stats", e)
                 binding.progressBar.visibility = View.GONE
                 binding.tvEmptyState.visibility = View.VISIBLE
-                binding.tvEmptyState.text = "Lỗi mạng hoặc không thể tải dữ liệu: ${e.localizedMessage ?: "Vui lòng thử lại"}"
+                binding.tvEmptyState.text = com.example.loterryapp.data.DrawRepository.errorMessage(e)
             }
         }
     }
@@ -234,9 +239,9 @@ class ThongKeActivity : AppCompatActivity() {
 
                 val cardView = MaterialCardView(this).apply {
                     radius = dpToPx(12).toFloat()
-                    cardElevation = dpToPx(2).toFloat()
-                    setCardBackgroundColor(Color.parseColor("#1E293B"))
-                    strokeColor = Color.parseColor("#334155")
+                    cardElevation = dpToPx(1).toFloat()
+                    setCardBackgroundColor(color(R.color.surface))
+                    strokeColor = color(R.color.card_stroke)
                     strokeWidth = dpToPx(1)
 
                     val param = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
@@ -251,19 +256,20 @@ class ThongKeActivity : AppCompatActivity() {
 
                 // TOP 1 / TOP 2 / TOP 3 Badge
                 if (globalIndex < 3) {
-                    val badgeColor = when (globalIndex) {
-                        0 -> Color.parseColor("#DC2626")
-                        1 -> Color.parseColor("#E11D48")
-                        else -> Color.parseColor("#F43F5E")
-                    }
+                    // TOP 1 nền đỏ đậm, TOP 2-3 nền đỏ nhạt (tonal)
+                    val badgeBg = if (globalIndex == 0) color(R.color.header_red) else color(R.color.brand_container)
+                    val badgeText = if (globalIndex == 0) color(R.color.on_brand) else color(R.color.on_brand_container)
 
                     val badge = TextView(this).apply {
                         text = "TOP ${globalIndex + 1}"
-                        setTextColor(Color.WHITE)
-                        setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
+                        setTextColor(badgeText)
+                        setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
                         setTypeface(null, Typeface.BOLD)
-                        setBackgroundColor(badgeColor)
-                        setPadding(dpToPx(4), dpToPx(1), dpToPx(4), dpToPx(1))
+                        background = GradientDrawable().apply {
+                            setColor(badgeBg)
+                            cornerRadius = dpToPx(6).toFloat()
+                        }
+                        setPadding(dpToPx(6), dpToPx(1), dpToPx(6), dpToPx(1))
 
                         val badgeLp = FrameLayout.LayoutParams(
                             FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -279,12 +285,14 @@ class ThongKeActivity : AppCompatActivity() {
                 val contentLayout = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER
+                    // Chừa chỗ cho nhãn TOP để không đè lên con số
+                    setPadding(0, dpToPx(12), 0, 0)
                 }
 
                 // Number
                 val tvNumber = TextView(this).apply {
                     text = item.number
-                    setTextColor(Color.WHITE)
+                    setTextColor(color(R.color.result_red))
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
                     setTypeface(null, Typeface.BOLD)
                     gravity = Gravity.CENTER
@@ -293,7 +301,7 @@ class ThongKeActivity : AppCompatActivity() {
                 // Subtitle
                 val tvValue = TextView(this).apply {
                     text = item.value
-                    setTextColor(Color.parseColor("#94A3B8"))
+                    setTextColor(color(R.color.text_secondary))
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
                     gravity = Gravity.CENTER
                     setPadding(0, dpToPx(2), 0, 0)
@@ -331,7 +339,7 @@ class ThongKeActivity : AppCompatActivity() {
 
         // Header Row
         val headerRow = TableRow(context).apply {
-            setBackgroundColor(Color.parseColor("#0F172A"))
+            setBackgroundColor(color(R.color.surface_variant))
             val params = TableRow.LayoutParams(
                 TableRow.LayoutParams.MATCH_PARENT,
                 TableRow.LayoutParams.WRAP_CONTENT
@@ -341,7 +349,7 @@ class ThongKeActivity : AppCompatActivity() {
             layoutParams = params
         }
 
-        headerRow.addView(createCell("STT", isHeader = true, widthDp = 45))
+        headerRow.addView(createCell("STT", isHeader = true, widthDp = 45, firstColumn = true))
         headerRow.addView(createCell("Bộ Số", isHeader = true, widthDp = 65))
         headerRow.addView(createCell(if (currentTab == "HOT") "Số Lần Về" else "Số Ngày Gan", isHeader = true))
         headerRow.addView(createCell("Lần Về Gần Nhất", isHeader = true))
@@ -349,7 +357,8 @@ class ThongKeActivity : AppCompatActivity() {
 
         // Data Rows
         for ((index, item) in items.withIndex()) {
-            val rowBg = if (index % 2 == 0) Color.parseColor("#1E293B") else Color.parseColor("#0F172A")
+            val rowBg = if (index % 2 == 0) color(R.color.surface) else color(R.color.bg_screen)
+            val isLast = index == items.lastIndex
 
             val row = TableRow(context).apply {
                 setBackgroundColor(rowBg)
@@ -357,15 +366,16 @@ class ThongKeActivity : AppCompatActivity() {
                     TableRow.LayoutParams.MATCH_PARENT,
                     TableRow.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    bottomMargin = dpToPx(1)
+                    // Dòng cuối không cần kẻ dưới: viền thẻ đã bao quanh
+                    bottomMargin = if (isLast) 0 else dpToPx(1)
                 }
                 layoutParams = params
             }
 
-            val c1 = createCell("${index + 1}", widthDp = 45, textColor = Color.parseColor("#94A3B8"))
-            val c2 = createCell(item.number, widthDp = 65, textColor = Color.parseColor("#EF4444"), isBold = true, textSizeSp = 17f)
-            val c3 = createCell(item.value, isBold = true, textColor = Color.parseColor("#2DD4BF"))
-            val c4 = createCell(if (item.lastDate.isNotEmpty()) item.lastDate else "-", textColor = Color.parseColor("#CBD5E1"))
+            val c1 = createCell("${index + 1}", widthDp = 45, textColor = color(R.color.text_secondary), firstColumn = true)
+            val c2 = createCell(item.number, widthDp = 65, textColor = color(R.color.result_red), isBold = true, textSizeSp = 17f)
+            val c3 = createCell(item.value, isBold = true, textColor = color(R.color.icon_teal))
+            val c4 = createCell(if (item.lastDate.isNotEmpty()) item.lastDate else "-", textColor = color(R.color.text_secondary))
 
             row.addView(c1)
             row.addView(c2)
@@ -379,20 +389,22 @@ class ThongKeActivity : AppCompatActivity() {
         text: String,
         isHeader: Boolean = false,
         widthDp: Int? = null,
-        textColor: Int = Color.WHITE,
+        textColor: Int = color(R.color.text_primary),
         isBold: Boolean = false,
-        textSizeSp: Float = 13f
+        textSizeSp: Float = 13f,
+        firstColumn: Boolean = false
     ): TextView {
         return TextView(this).apply {
             this.text = text
             gravity = Gravity.CENTER
             setPadding(dpToPx(6), dpToPx(10), dpToPx(6), dpToPx(10))
             if (isHeader || isBold) setTypeface(null, Typeface.BOLD)
-            setTextColor(if (isHeader) Color.parseColor("#E2E8F0") else textColor)
+            setTextColor(if (isHeader) color(R.color.text_secondary) else textColor)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, if (isHeader) 12f else textSizeSp)
 
             val lp = TableRow.LayoutParams().apply {
-                marginStart = dpToPx(1)
+                // Kẻ dọc 1dp giữa các cột (cột đầu sát viền thẻ nên không cần)
+                marginStart = if (firstColumn) 0 else dpToPx(1)
                 if (widthDp != null) width = dpToPx(widthDp)
             }
             layoutParams = lp

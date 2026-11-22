@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ban sao database copy tu may ao (tools/export-db.bat), khong commit
+/db-export/

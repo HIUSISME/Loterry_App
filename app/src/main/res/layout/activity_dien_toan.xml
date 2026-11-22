@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A"
+    android:background="@color/bg_screen"
     android:orientation="vertical"
     tools:context=".DienToanActivity">
 
@@ -24,41 +24,43 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="8dp">
+                android:paddingHorizontal="4dp">
 
                 <ImageView
                     android:id="@+id/ivBack"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
+                    android:contentDescription="Quay lại"
                     android:focusable="true"
-                    android:padding="8dp"
+                    android:padding="12dp"
                     android:src="@drawable/ic_back"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="Xổ Số Điện Toán"
-                    android:textColor="@color/white"
+                    android:textColor="@color/on_brand"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/ivCalendar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
+                    android:contentDescription="Chọn ngày"
                     android:focusable="true"
-                    android:padding="8dp"
+                    android:padding="12dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -69,11 +71,11 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="#1E293B"
+        android:layout_marginBottom="4dp"
+        app:cardBackgroundColor="@color/surface"
         app:cardCornerRadius="12dp"
         app:cardElevation="1dp"
-        app:strokeColor="#334155"
+        app:strokeColor="@color/card_stroke"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -81,7 +83,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="6dp">
+            android:padding="4dp">
 
             <LinearLayout
                 android:id="@+id/btnPrev"
@@ -91,6 +93,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
+                android:minHeight="48dp"
                 android:orientation="horizontal"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp">
@@ -99,14 +102,14 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_chevron_left"
-                    app:tint="#F87171" />
+                    app:tint="@color/result_red" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Trước"
-                    android:textColor="#F87171"
-                    android:textSize="13sp"
+                    android:textColor="@color/result_red"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -119,9 +122,10 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
+                android:minHeight="48dp"
                 android:padding="8dp"
                 android:text="30-09-2026"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -133,6 +137,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
+                android:minHeight="48dp"
                 android:orientation="horizontal"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp">
@@ -141,15 +146,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sau"
-                    android:textColor="#F87171"
-                    android:textSize="13sp"
+                    android:textColor="@color/result_red"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#F87171" />
+                    app:tint="@color/result_red" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -172,6 +177,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="32dp"
+                android:indeterminateTint="@color/header_red"
                 android:visibility="gone" />
 
             <TextView
@@ -181,7 +187,7 @@
                 android:gravity="center"
                 android:padding="32dp"
                 android:text="Đang tải kết quả Xổ Số Điện Toán..."
-                android:textColor="#94A3B8"
+                android:textColor="@color/text_secondary"
                 android:textSize="15sp"
                 android:visibility="gone" />
 

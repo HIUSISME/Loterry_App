@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray_light"
+    android:background="@color/bg_screen"
     android:orientation="vertical"
     tools:context=".AiAssistantActivity">
 
@@ -36,29 +36,16 @@
                     android:focusable="true"
                     android:padding="8dp"
                     android:src="@drawable/ic_back"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="Trợ Lý AI VLottery"
-                    android:textColor="@color/white"
+                    android:textColor="@color/on_brand"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/ivApiKey"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_manage"
-                    app:tint="@color/white" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -86,16 +73,16 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/chipPredict"
+                android:id="@+id/chipSuggest"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginEnd="8dp"
-                android:text="🔮 Dự đoán số may mắn"
+                android:text="🎲 Gợi ý số tham khảo"
                 android:textSize="12sp"
-                app:backgroundTint="#F3E8FF"
+                app:backgroundTint="@color/purple_container"
                 app:cornerRadius="18dp"
-                app:rippleColor="#9333EA" />
+                app:rippleColor="@color/icon_purple" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/chipHot"
@@ -105,9 +92,9 @@
                 android:layout_marginEnd="8dp"
                 android:text="🔥 Phân tích số nóng"
                 android:textSize="12sp"
-                app:backgroundTint="#FEE2E2"
+                app:backgroundTint="@color/red_container"
                 app:cornerRadius="18dp"
-                app:rippleColor="#DC2626" />
+                app:rippleColor="@color/icon_red" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/chipVietlott"
@@ -116,9 +103,9 @@
                 android:layout_height="36dp"
                 android:text="🍀 Gợi ý Mega / Power"
                 android:textSize="12sp"
-                app:backgroundTint="#FFEDD5"
+                app:backgroundTint="@color/orange_container"
                 app:cornerRadius="18dp"
-                app:rippleColor="#EA580C" />
+                app:rippleColor="@color/icon_orange" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -126,7 +113,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/surface"
         android:elevation="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -143,8 +130,8 @@
             android:imeOptions="actionSend"
             android:maxLines="4"
             android:padding="12dp"
-            android:textColor="#1E293B"
-            android:textColorHint="#94A3B8"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_tertiary"
             android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
@@ -161,7 +148,7 @@
             app:icon="@android:drawable/ic_menu_send"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
-            app:iconTint="@color/white" />
+            app:iconTint="@color/on_brand" />
     </LinearLayout>
 
 </LinearLayout>

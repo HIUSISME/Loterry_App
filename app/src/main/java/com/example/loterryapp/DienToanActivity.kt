@@ -93,9 +93,12 @@ class DienToanActivity : AppCompatActivity() {
         loadJob?.cancel()
         loadJob = lifecycleScope.launch {
             // 1. Hiện ngay kết quả đã lưu trên máy (nếu có), không cần chờ mạng
-            val showedSaved = showGames(repository.getSavedVietnamDraws(REGION, dateQuery))
+            val saved = repository.getSavedVietnamDraws(REGION, dateQuery)
+            val showedSaved = showGames(saved)
             // Đã có dữ liệu để xem thì ẩn vòng xoay tải, tránh đẩy nội dung xuống rồi giật lên khi API trả về
             if (showedSaved) binding.progressBar.visibility = View.GONE
+            // Ngày đã qua và đã quay xong: không cần gọi API
+            if (repository.isFinalVietnam(REGION, dateQuery, saved)) return@launch
 
             // 2. Gọi API để lấy kết quả mới; repository tự lưu những kỳ mới / thay đổi vào database
             try {
@@ -112,10 +115,8 @@ class DienToanActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (showedSaved) {
                     Toast.makeText(this@DienToanActivity, "Không cập nhật được, đang hiện kết quả đã lưu", Toast.LENGTH_SHORT).show()
-                } else if (e is DrawRepository.ApiException) {
-                    showEmptyState(e.message.orEmpty())
                 } else {
-                    showEmptyState("Lỗi mạng hoặc không thể tải dữ liệu: ${e.localizedMessage ?: "Vui lòng thử lại"}")
+                    showEmptyState(DrawRepository.errorMessage(e))
                 }
             }
         }

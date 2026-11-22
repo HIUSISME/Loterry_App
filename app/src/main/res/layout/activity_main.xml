@@ -10,11 +10,12 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray_light">
+        android:background="@color/bg_screen">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/header_red"
             app:elevation="0dp">
 
             <androidx.appcompat.widget.Toolbar
@@ -27,42 +28,44 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingHorizontal="8dp">
+                    android:paddingHorizontal="4dp">
 
                     <ImageView
                         android:id="@+id/ivMenu"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_centerVertical="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
+                        android:contentDescription="Mở menu"
                         android:focusable="true"
-                        android:padding="8dp"
+                        android:padding="12dp"
                         android:src="@drawable/ic_menu"
-                        app:tint="@color/white" />
+                        app:tint="@color/on_brand" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
+                        android:letterSpacing="0.08"
                         android:text="VLOTTERY"
-                        android:textColor="@color/white"
+                        android:textColor="@color/on_brand"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.05" />
+                        android:textStyle="bold" />
 
                     <ImageView
                         android:id="@+id/ivAccount"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
+                        android:contentDescription="Hồ sơ cá nhân"
                         android:focusable="true"
-                        android:padding="8dp"
+                        android:padding="12dp"
                         android:src="@drawable/ic_account"
-                        app:tint="@color/white" />
+                        app:tint="@color/on_brand" />
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
@@ -76,494 +79,440 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:paddingBottom="24dp">
 
-                <!-- Xổ Số Kiến Thiết Card -->
-                <com.google.android.material.card.MaterialCardView
+                <!-- Lời chào: nối liền thanh tiêu đề đỏ -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="@color/card_stroke"
-                    app:strokeWidth="1dp">
+                    android:background="@drawable/home_hero_bg"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="56dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:text="Xin chào 👋"
+                        android:textColor="@color/on_brand"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvToday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:alpha="0.85"
+                        android:textColor="@color/on_brand"
+                        android:textSize="14sp"
+                        tools:text="Thứ Năm, 20/11/2026" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-40dp"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp">
+
+                    <!-- Kết quả hôm nay của 3 miền (các dòng được thêm trong MainActivity) -->
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/HomeCard"
+                        app:cardElevation="2dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="8dp">
 
-                            <FrameLayout
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:background="@drawable/bg_icon_circle_blue">
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_map_pin"
-                                    app:tint="@color/icon_blue" />
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:text="Xổ Số Kiến Thiết"
-                                android:textColor="@color/text_primary"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <GridLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:alignmentMode="alignMargins"
-                            android:columnCount="4">
-
-                            <!-- Miền Nam -->
                             <LinearLayout
-                                android:id="@+id/btnMienNam"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
 
                                 <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_blue">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_map_pin"
-                                        app:tint="@color/icon_blue" />
-                                </FrameLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Miền Nam"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <!-- Miền Trung -->
-                            <LinearLayout
-                                android:id="@+id/btnMienTrung"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
-
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_teal">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_map_pin"
-                                        app:tint="@color/icon_teal" />
-                                </FrameLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Miền Trung"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <!-- Miền Bắc -->
-                            <LinearLayout
-                                android:id="@+id/btnMienBac"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
-
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
                                     android:background="@drawable/bg_icon_circle_red">
+
                                     <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
                                         android:layout_gravity="center"
-                                        android:src="@drawable/ic_map_pin"
-                                        app:tint="@color/icon_red" />
-                                </FrameLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Miền Bắc"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <!-- Thống Kê KQXS -->
-                            <LinearLayout
-                                android:id="@+id/btnThongKe"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
-
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_purple">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_bar_chart"
-                                        app:tint="@color/icon_purple" />
-                                </FrameLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Thống Kê"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                        </GridLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Xổ Số Điện Toán Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="@color/card_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <FrameLayout
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:background="@drawable/bg_icon_circle_red">
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_star_filled"
-                                    app:tint="@color/icon_red" />
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:text="Xổ Số Điện Toán"
-                                android:textColor="@color/text_primary"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <GridLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:alignmentMode="alignMargins"
-                            android:columnCount="3">
-
-                            <!-- Mega 6/45 -->
-                            <LinearLayout
-                                android:id="@+id/btnMega"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:layout_marginBottom="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
-
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_red">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
+                                        android:importantForAccessibility="no"
                                         android:src="@drawable/ic_star_filled"
                                         app:tint="@color/icon_red" />
                                 </FrameLayout>
 
                                 <TextView
+                                    style="@style/HomeCardTitle"
+                                    android:text="Kết quả hôm nay" />
+
+                                <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Mega 6/45"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
+                                    android:text="Giải Đặc Biệt"
+                                    android:textColor="@color/text_tertiary"
+                                    android:textSize="12sp" />
                             </LinearLayout>
 
-                            <!-- Power 6/55 -->
                             <LinearLayout
-                                android:id="@+id/btnPower"
-                                android:layout_width="0dp"
+                                android:id="@+id/layoutToday"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:layout_marginBottom="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                                android:layout_marginTop="8dp"
+                                android:orientation="vertical" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Lối tắt: Dò vé + Trợ lý AI -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTicketCheck"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:text="Dò vé số"
+                            android:textColor="@color/on_brand"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/header_red"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/ic_ticket"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/on_brand" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAiAssistant"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:text="Trợ lý AI"
+                            android:textColor="@color/on_brand_container"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/brand_container"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/ic_ai"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/on_brand_container" />
+                    </LinearLayout>
+
+                    <!-- Xổ Số Kiến Thiết -->
+                    <com.google.android.material.card.MaterialCardView style="@style/HomeCard">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
 
                                 <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_orange">
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    android:background="@drawable/bg_icon_circle_blue">
+
                                     <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
                                         android:layout_gravity="center"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/ic_map_pin"
+                                        app:tint="@color/icon_blue" />
+                                </FrameLayout>
+
+                                <TextView
+                                    style="@style/HomeCardTitle"
+                                    android:text="Xổ Số Kiến Thiết" />
+                            </LinearLayout>
+
+                            <GridLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:columnCount="4">
+
+                                <LinearLayout
+                                    android:id="@+id/btnMienNam"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_green">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_map_pin"
+                                            app:tint="@color/icon_green" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Miền Nam" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/btnMienTrung"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_orange">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_map_pin"
+                                            app:tint="@color/icon_orange" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Miền Trung" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/btnMienBac"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_red">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_map_pin"
+                                            app:tint="@color/icon_red" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Miền Bắc" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/btnThongKe"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_purple">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_bar_chart"
+                                            app:tint="@color/icon_purple" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Thống kê" />
+                                </LinearLayout>
+                            </GridLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Vietlott & Điện toán -->
+                    <com.google.android.material.card.MaterialCardView style="@style/HomeCard">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <FrameLayout
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    android:background="@drawable/bg_icon_circle_orange">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:importantForAccessibility="no"
                                         android:src="@drawable/ic_star_filled"
                                         app:tint="@color/icon_orange" />
                                 </FrameLayout>
 
                                 <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Power 6/55"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
+                                    style="@style/HomeCardTitle"
+                                    android:text="Vietlott &amp; Điện toán" />
                             </LinearLayout>
 
-                            <!-- Max3D PRO -->
-                            <LinearLayout
-                                android:id="@+id/btnMax3DPro"
-                                android:layout_width="0dp"
+                            <GridLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:layout_marginBottom="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                                android:layout_marginTop="8dp"
+                                android:columnCount="3">
 
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_blue">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_dice"
-                                        app:tint="@color/icon_blue" />
-                                </FrameLayout>
+                                <LinearLayout
+                                    android:id="@+id/btnMega"
+                                    style="@style/HomeTile">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Max3D PRO"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_red">
 
-                            <!-- KENO -->
-                            <LinearLayout
-                                android:id="@+id/btnKeno"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:layout_marginBottom="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_star_filled"
+                                            app:tint="@color/icon_red" />
+                                    </FrameLayout>
 
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_green">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_ticket"
-                                        app:tint="@color/icon_green" />
-                                </FrameLayout>
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Mega 6/45" />
+                                </LinearLayout>
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="KENO"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
+                                <LinearLayout
+                                    android:id="@+id/btnPower"
+                                    style="@style/HomeTile">
 
-                            <!-- XSĐT -->
-                            <LinearLayout
-                                android:id="@+id/btnXsdt"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:layout_marginBottom="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_orange">
 
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_teal">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_ticket"
-                                        app:tint="@color/icon_teal" />
-                                </FrameLayout>
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_star_filled"
+                                            app:tint="@color/icon_orange" />
+                                    </FrameLayout>
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="XSĐT"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Power 6/55" />
+                                </LinearLayout>
 
-                            <!-- Max3D -->
-                            <LinearLayout
-                                android:id="@+id/btnMax3D"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_columnWeight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                                <LinearLayout
+                                    android:id="@+id/btnKeno"
+                                    style="@style/HomeTile">
 
-                                <FrameLayout
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:background="@drawable/bg_icon_circle_blue">
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_dice"
-                                        app:tint="@color/icon_blue" />
-                                </FrameLayout>
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_green">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Max3D"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_ticket"
+                                            app:tint="@color/icon_green" />
+                                    </FrameLayout>
 
-                        </GridLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Keno" />
+                                </LinearLayout>
 
-                <!-- Bottom Actions Section -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingVertical="8dp">
+                                <LinearLayout
+                                    android:id="@+id/btnMax3D"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_blue">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_dice"
+                                            app:tint="@color/icon_blue" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Max 3D" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/btnMax3DPro"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_purple">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_dice"
+                                            app:tint="@color/icon_purple" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Max 3D Pro" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/btnXsdt"
+                                    style="@style/HomeTile">
+
+                                    <FrameLayout
+                                        style="@style/HomeTileIconBox"
+                                        android:background="@drawable/bg_icon_circle_teal">
+
+                                        <ImageView
+                                            style="@style/HomeTileIcon"
+                                            android:src="@drawable/ic_ticket"
+                                            app:tint="@color/icon_teal" />
+                                    </FrameLayout>
+
+                                    <TextView
+                                        style="@style/HomeTileLabel"
+                                        android:text="Điện toán" />
+                                </LinearLayout>
+                            </GridLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Nhắc chơi có trách nhiệm -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="2dp"
+                        android:paddingHorizontal="16dp"
+                        android:text="Xổ số là trò chơi ngẫu nhiên, không ai đoán trước được kết quả.\nHãy chơi có trách nhiệm và luôn đối chiếu vé tại đại lý chính thức."
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogout"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingVertical="8dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp"
                         android:text="Đăng xuất"
                         android:textColor="@color/icon_red"
-                        android:textSize="15sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
-
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
@@ -574,8 +523,11 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/surface"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header"
+        app:itemIconTint="@color/text_secondary"
+        app:itemTextColor="@color/text_primary"
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

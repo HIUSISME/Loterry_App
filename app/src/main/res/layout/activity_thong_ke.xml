@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A"
+    android:background="@color/bg_screen"
     android:orientation="vertical"
     tools:context=".ThongKeActivity">
 
@@ -24,132 +24,155 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="8dp">
+                android:paddingHorizontal="4dp">
 
                 <ImageView
                     android:id="@+id/ivBack"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
+                    android:contentDescription="Quay lại"
                     android:focusable="true"
-                    android:padding="8dp"
+                    android:padding="12dp"
                     android:src="@drawable/ic_back"
-                    app:tint="@color/white" />
+                    app:tint="@color/on_brand" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="Trung Tâm Thống Kê"
-                    android:textColor="@color/white"
+                    android:textColor="@color/on_brand"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Region Selection Bar (Miền Bắc, Miền Trung, Miền Nam) -->
-    <LinearLayout
+    <!-- Filter card: region + stat type -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1E293B"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="1dp"
+        app:strokeColor="@color/card_stroke"
+        app:strokeWidth="1dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRegionMB"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="0dp"
-            android:layout_height="38dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
-            android:text="Miền Bắc"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:backgroundTint="#0D9488"
-            app:cornerRadius="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRegionMT"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="38dp"
-            android:layout_marginHorizontal="2dp"
-            android:layout_weight="1"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
-            android:text="Miền Trung"
-            android:textColor="#94A3B8"
-            android:textSize="12sp"
-            app:backgroundTint="#334155"
-            app:cornerRadius="8dp" />
+            <!-- Region Selection Bar (Miền Bắc, Miền Trung, Miền Nam) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRegionMN"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="38dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
-            android:text="Miền Nam"
-            android:textColor="#94A3B8"
-            android:textSize="12sp"
-            app:backgroundTint="#334155"
-            app:cornerRadius="8dp" />
-    </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRegionMB"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    android:text="Miền Bắc"
+                    android:textColor="@color/on_brand"
+                    android:textSize="13sp"
+                    app:backgroundTint="@color/header_red"
+                    app:cornerRadius="10dp" />
 
-    <!-- Tab Loại Thống Kê (Số Nóng vs Lô Gan) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#1E293B"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
-        android:paddingBottom="10dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRegionMT"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginHorizontal="2dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    android:text="Miền Trung"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    app:backgroundTint="@color/surface_variant"
+                    app:cornerRadius="10dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTabHot"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:text="🔥 Số Nóng (Hay Về)"
-            android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/header_red"
-            app:cornerRadius="20dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRegionMN"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    android:text="Miền Nam"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    app:backgroundTint="@color/surface_variant"
+                    app:cornerRadius="10dp" />
+            </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTabGap"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:text="❄️ Lô Gan (Lâu Về)"
-            android:textColor="#94A3B8"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:backgroundTint="#334155"
-            app:cornerRadius="20dp" />
-    </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="@color/divider" />
+
+            <!-- Tab Loại Thống Kê (Số Nóng vs Lô Gan) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTabHot"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="🔥 Số Nóng (Hay Về)"
+                    android:textColor="@color/on_brand_container"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/brand_container"
+                    app:cornerRadius="24dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTabGap"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="❄️ Lô Gan (Lâu Về)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/surface_variant"
+                    app:cornerRadius="24dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -167,6 +190,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="32dp"
+                android:indeterminateTint="@color/header_red"
                 android:visibility="gone" />
 
             <TextView
@@ -176,7 +200,7 @@
                 android:gravity="center"
                 android:padding="32dp"
                 android:text="Đang tải dữ liệu thống kê..."
-                android:textColor="#94A3B8"
+                android:textColor="@color/text_secondary"
                 android:textSize="15sp"
                 android:visibility="gone" />
 
@@ -185,9 +209,10 @@
                 android:id="@+id/tvGridTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp"
                 android:text="🔥 Số Nóng - Hay Về Nhất"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -196,17 +221,18 @@
                 android:id="@+id/gridTopNumbers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
             </LinearLayout>
 
             <!-- Title for Table -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
                 android:layout_marginBottom="8dp"
                 android:text="Bảng Dữ Liệu Chi Tiết"
-                android:textColor="#94A3B8"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -214,18 +240,18 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1E293B"
+                app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeColor="#334155"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/card_stroke"
                 app:strokeWidth="1dp">
 
+                <!-- background = grid line color (rows are inset by 1dp margins) -->
                 <TableLayout
                     android:id="@+id/tableStats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#334155"
-                    android:padding="1dp"
+                    android:background="@color/divider"
                     android:stretchColumns="*">
                 </TableLayout>
             </com.google.android.material.card.MaterialCardView>
